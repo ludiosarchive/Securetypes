@@ -5,7 +5,7 @@ class frozendict(dict):
 	__slots__ = ('_cachedHash')
 
 	@property
-	def _blocked(obj):
+	def _blocked(self):
 		raise AttributeError("A frozendict cannot be modified.")
 
 	__delitem__ = \
