@@ -17,9 +17,6 @@ class frozendict(dict):
 	update = \
 	_blocked
 
-	# TODO: make sure that viewitems, viewkeys, viewvalues do not
-	# allow mutation of the dict.
-
 	def __new__(cls, *args, **kwargs):
 		new = dict.__new__(cls)
 		new._cachedHash = None
