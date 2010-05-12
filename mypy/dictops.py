@@ -3,7 +3,10 @@ _postImportVars = vars().keys()
 
 class consensualfrozendict(dict):
 	"""
-	A C{dict} that tries hard to be immutable.
+	A C{dict} that block naive attempts to mutate it, but isn't really
+	immutable.
+
+	Allowed to have unhashable values, so it is not necessarily hashable.
 	"""
 	__slots__ = ('_cachedHash')
 
@@ -50,9 +53,9 @@ class frozendict(tuple):
 	A C{dict} that is really immutable. Ideal for small dicts.
 
 	It is slower than a dict (often O(N) instead of O(1)) because it is based
-	on a tuple, but it does use less memory if you just keep it around.
+	on a tuple, but it does use less memory just sitting around.
 
-	Does not hash() to the same hash as a normal C{dict}.
+	Allowed to have unhashable values, so it is not necessarily hashable.
 	"""
 	__slots__ = ()
 
