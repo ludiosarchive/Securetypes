@@ -1,6 +1,19 @@
 from twisted.trial import unittest
 
-from mypy.dictops import consensualfrozendict, frozendict
+from mypy.dictops import attrdict, consensualfrozendict, frozendict
+
+
+
+class AttrDictTests(unittest.TestCase):
+
+	dtype = attrdict
+
+	def test_setattr(self):
+		d = self.dtype()
+		d.somekey = 3
+		self.assertEqual(3, d.somekey)
+		self.assertEqual(3, d['somekey'])
+
 
 
 class _BaseFrozenDictTests(object):

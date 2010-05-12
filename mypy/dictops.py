@@ -1,6 +1,22 @@
 _postImportVars = vars().keys()
 
 
+class attrdict(dict):
+	"""
+	A dict that can be modified by setting and getting attributes.
+	This may be broken in funny ways; use with care.
+	"""
+	__slots__ = ()
+
+	def __setattr__(self, key, value):
+		self[key] = value
+
+
+	def __getattribute__(self, key):
+		return self[key]
+
+
+
 class consensualfrozendict(dict):
 	"""
 	A C{dict} that block naive attempts to mutate it, but isn't really
