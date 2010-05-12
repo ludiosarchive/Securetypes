@@ -9,7 +9,7 @@ class consensualfrozendict(dict):
 
 	@property
 	def _blocked(self):
-		raise AttributeError("A frozendict cannot be modified.")
+		raise AttributeError("A consensualfrozendict cannot be modified.")
 
 	__delitem__ = \
 	__setitem__ = \
@@ -163,6 +163,11 @@ class frozendict(tuple):
 #			buf.append(repr(v))
 #		buf.append('})')
 #		return ''.join(buf)
+
+
+# We could also do an insane hack based on using both a frozenset and a
+# tuple. The frozenset would have fake-hashable markers that tell you which
+# index to look up in the tuple.
 
 
 from pypycpyo import optimizer
