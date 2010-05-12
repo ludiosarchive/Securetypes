@@ -1,3 +1,6 @@
+_postImportVars = vars().keys()
+
+
 class frozendict(dict):
 	"""
 	A C{dict} that tries hard to be immutable.
@@ -39,3 +42,8 @@ class frozendict(dict):
 
 	def __repr__(self):
 		return "frozendict(%s)" % dict.__repr__(self)
+
+
+
+from pypycpyo import optimizer
+optimizer.bind_all_many(vars(), _postImportVars)
