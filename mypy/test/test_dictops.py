@@ -1,4 +1,4 @@
-from twisted.trial import unittest
+import unittest
 
 from mypy.dictops import attrdict, consensualfrozendict, frozendict
 
@@ -167,7 +167,7 @@ class FrozenDictTests(_DictReadingTests, _BaseFrozenDictTests, unittest.TestCase
 	def test_copy(self):
 		d = self.dtype(x=3)
 		# .copy() returns a reference to the same object
-		self.assertIdentical(d, d.copy())
+		self.assertIs(d, d.copy())
 
 
 
