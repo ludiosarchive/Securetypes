@@ -72,6 +72,12 @@ class frozendict(tuple):
 	on a tuple, but it does use less memory just sitting around.
 
 	Allowed to have unhashable values, so it is not necessarily hashable.
+
+	Note that __eq__ on this is probably broken, because it assumes that
+	the other frozendict has the same underlying order.  This is usually
+	but not necessarily the case.  For example:
+	>>> print {-1: None, -2: None}, {-2: None, -1: None}
+	{-2: None, -1: None} {-1: None, -2: None}
 	"""
 	__slots__ = ()
 
