@@ -597,6 +597,17 @@ class SecureDictTest(unittest.TestCase):
 			self.assertRaises(CustomException, execstmt, stmt, locals())
 
 
+	def test_viewmethods(self):
+		if hasattr({}, 'viewitems'): # Python 2.7+
+			self.assertRaises(NotImplementedError, lambda: securedict().viewitems())
+			self.assertRaises(NotImplementedError, lambda: securedict().viewkeys())
+			self.assertEqual(list(securedict({1: 2}).viewvalues()), list({1: 2}.viewvalues()))
+		else:
+			self.assertRaises((AttributeError, TypeError), lambda: securedict().viewitems())
+			self.assertRaises((AttributeError, TypeError), lambda: securedict().viewkeys())
+			self.assertRaises((AttributeError, TypeError), lambda: securedict().viewvalues())
+
+
 
 class AttrDictTests(unittest.TestCase):
 

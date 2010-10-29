@@ -10,18 +10,26 @@ _globalSeenStack = []
 class securedict(dict):
 	"""
 	A dictionary that is relatively safe from algorithmic complexity attacks.
-
-	It is == to normal dicts (if the contents are the same).
-
-	C{.copy()} returns a L{securedict}.
-
-	C{.popitem()} may behave slightly differently; see the unit tests.
-
-	The C{>, <, >=, <=} operators behave in a completely undefined manner.
+	To be safe from such attacks, it modifies the keys, so that they have
+	unpredictable C{hash()}es.
 
 	Even if your Python runtime is patched to raise an exception if > n
 	iterations are required to set/get an item from a dict/set, you may need
 	securedict if more than one user contributes to the content of the dict.
+
+	The fine print:
+
+	A securedict is C{==} to a normal dict (if the contents are the same).
+
+	C{.copy()} returns a L{securedict}.
+
+	C{.popitem()} may pop a different item than an equal dict would; see the
+	unit tests.
+
+	The C{>, <, >=, <=} operators behave in a completely undefined manner.
+
+	In Python 2.7+, calling C{.viewitems()} or C{.viewkeys()} raises
+	L{NotImplementedError}, while C{.viewvalues()} works as usual.
 	"""
 	__slots__ = ('_random1', '_random2')
 
@@ -193,6 +201,17 @@ class securedict(dict):
 	def copy(self):
 		# Must do this, otherwise the copy is "double secured"
 		return securedict(self.items())
+
+
+	if hasattr({}, 'viewitems'): # Python 2.7+
+		def viewitems(self):
+			raise NotImplementedError("no viewitems on securedict")
+
+
+		def viewkeys(self):
+			raise NotImplementedError("no viewkeys on securedict")
+
+		# viewvalues is okay
 
 
 
