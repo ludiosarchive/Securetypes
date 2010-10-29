@@ -51,7 +51,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 			(securedict({1: 2, 3: 4}), securedict({1: 2})),
 			(securedict({1: 2}), None),
 		]:
-			self.assertReallyUnequal(a, b)
+			self.assertReallyNotEqual(a, b)
 
 
 	def test_bool(self):
