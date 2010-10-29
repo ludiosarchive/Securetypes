@@ -109,7 +109,7 @@ class securedict(dict):
 			return 1
 
 
-	def __repr__(self):
+	def _repr(self, withSecureDictString):
 		if self in _globalSeenStack:
 			return 'securedict({...})'
 		try:
@@ -117,7 +117,7 @@ class securedict(dict):
 			if not _globalSeenStack:
 				isRootObject = True
 				_globalSeenStack.append(self)
-			buf = ['securedict({']
+			buf = ['securedict({' if withSecureDictString else '{']
 			comma = ''
 			for k in self.__dictiter__():
 				buf.append(comma)
@@ -130,11 +130,19 @@ class securedict(dict):
 				_globalSeenStack.append(v)
 				buf.append(repr(v))
 				_globalSeenStack.pop()
-			buf.append('})')
+			buf.append('})' if withSecureDictString else '}')
 			return ''.join(buf)
 		finally:
 			if isRootObject:
 				del _globalSeenStack[:]
+
+
+	def __repr__(self):
+		return self._repr(True)
+
+
+	def reprLikeDict(self):
+		return self._repr(False)
 
 
 	def get(self, key, default=None):

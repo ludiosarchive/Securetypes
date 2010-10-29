@@ -475,6 +475,12 @@ class SecureDictTest(unittest.TestCase):
 		self.assertRaises(Exc, repr, d)
 
 
+	def test_reprLikeDict(self):
+		d = securedict()
+		d[1] = 2
+		self.assertEqual(d.reprLikeDict(), '{1: 2}')
+
+
 	def test_reprOtherRecursions(self):
 		d = securedict({1: []})
 		d[1].append(d)
