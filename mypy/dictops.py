@@ -141,11 +141,19 @@ class securedict(dict):
 		return list(k[1] for k in self.__dictiter__())
 
 	__dictiter__ = dict.__iter__
-	__dictiteritems__ = dict.iteritems
+
+	def __iter__(self):
+		for k in self.__dictiter__():
+			yield k[1]
+
+
+	def iteritems(self):
+		for k, v in dict.iteritems(self):
+			yield k[1], v
 
 
 	def items(self):
-		return list((k[1], v) for k, v in self.__dictiteritems__())
+		return list((k[1], v) for k, v in dict.iteritems(self))
 
 
 	def copy(self):

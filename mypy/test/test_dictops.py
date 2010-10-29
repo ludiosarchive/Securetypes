@@ -54,6 +54,16 @@ class SecureDictTest(unittest.TestCase):
 		self.assertRaises(TypeError, d.items, None)
 
 
+	def test_iteritems(self):
+		d = securedict()
+		self.assertEqual(list(d.iteritems()), [])
+
+		d = securedict({1:2})
+		self.assertEqual(list(d.iteritems()), [(1, 2)])
+
+		self.assertRaises(TypeError, d.iteritems, None)
+
+
 	def test_has_key(self):
 		d = securedict()
 		self.assertFalse(d.has_key('a'))
