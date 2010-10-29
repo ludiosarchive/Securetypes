@@ -1,3 +1,5 @@
+from mypy.randgen import secureRandom
+
 _postImportVars = vars().keys()
 
 
@@ -13,7 +15,77 @@ class securedict(dict):
 	iterations are required to set/get an item from a dict/set, you may need
 	securedict if more than one user contributes to the content of the dict.
 	"""
-	__slots__ = ()
+	__slots__ = ('_random1', '_random2')
+
+	def __new__(cls, x={}, **kwargs):
+		# TODO: make sure this doesn't mutate old dict
+		obj = dict.__new__(cls)
+		obj._random1 = secureRandom(4)
+		obj._random2 = secureRandom(4)
+		if not isinstance(x, dict):
+			# Convert [(1, 2)] -> {1: 2}
+			x = dict(x)
+		for k, v in x.iteritems():
+			obj[k] = v
+		for k, v in kwargs.iteritems():
+			obj[k] = v
+		return obj
+
+
+	def __init__(self, *args, **kwargs):
+		# We must override __init__ to prevent dict.__init__ from inserting
+		# unsecured keys during instantiation.
+		pass
+
+
+	def __getitem__(self, key):
+		return dict.__getitem__(self, (self._random1, key, self._random2))
+
+
+	def __setitem__(self, key, value):
+		return dict.__setitem__(self, (self._random1, key, self._random2), value)
+
+
+	def __delitem__(self, key):
+		return dict.__delitem__(self, (self._random1, key, self._random2))
+
+
+	def __contains__(self, key):
+		return dict.__contains__(self, (self._random1, key, self._random2))
+	has_key = __contains__
+
+
+	def __repr__(self):
+		buf = ['securedict({']
+		comma = ''
+		for k in self.__dictiter__():
+			buf.append(comma)
+			comma = ','
+			buf.append(repr(k[1]))
+			buf.append(': ')
+			buf.append(repr(self[k[1]]))
+		buf.append('})')
+		return ''.join(buf)
+
+
+	def get(self, key, default=None):
+		return dict.get(self, (self._random1, key, self._random2), default)
+
+
+	def keys(self):
+		return list(k[1] for k in self.__dictiter__())
+
+	__dictiter__ = dict.__iter__
+	__dictiteritems__ = dict.iteritems
+
+
+	def items(self):
+		return list((k[1], v) for k, v in self.__dictiteritems__())
+
+
+	def copy(self):
+		# Must do this, otherwise the copy is "double secured"
+		return securedict(self.items())
 
 
 
