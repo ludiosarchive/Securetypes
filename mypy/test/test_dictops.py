@@ -2,6 +2,7 @@ from twisted.trial import unittest
 import UserDict
 
 from mypy.dictops import securedict, attrdict, consensualfrozendict, frozendict
+from mypy.testhelpers import ReallyEqualMixin
 
 
 class SimpleUserDict:
@@ -18,7 +19,7 @@ class SimpleUserDict:
 
 
 
-class SecureDictTest(unittest.TestCase):
+class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 	"""
 	These tests are based on CPython 2.7's Python/Lib/test/test_dict.py 
 	"""
@@ -36,25 +37,13 @@ class SecureDictTest(unittest.TestCase):
 		self.assertEqual(securedict(s), {1:1, 2:2, 3:3})
 
 
-	def _assertEqualPair(self, a, b):
-		self.assertTrue(a == b)
-		self.assertFalse(a != b)
-		self.assertEqual(0, cmp(a, b))
-
-
-	def _assertUnequalPair(self, a, b):
-		self.assertFalse(a == b)
-		self.assertTrue(a != b)
-		self.assertNotEqual(0, cmp(a, b))
-
-
 	def test_equality(self):
 		for a, b in [
 			(securedict(), securedict()),
 			(securedict({'one': 2}), securedict({'one': 2})),
 			(securedict({'one': 2}), securedict(one=2)),
 		]:
-			self._assertEqualPair(a, b)
+			self.assertReallyEqual(a, b)
 
 		for a, b in [
 			(securedict({1: 2}), securedict({1: 3})),
@@ -62,7 +51,7 @@ class SecureDictTest(unittest.TestCase):
 			(securedict({1: 2, 3: 4}), securedict({1: 2})),
 			(securedict({1: 2}), None),
 		]:
-			self._assertUnequalPair(a, b)
+			self.assertReallyUnequal(a, b)
 
 
 	def test_bool(self):
