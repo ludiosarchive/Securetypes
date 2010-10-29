@@ -108,6 +108,8 @@ class securedict(dict):
 		return not self.__eq__(other)
 
 
+	# We must define __cmp__ so that dict.__cmp__ is not used
+	# by cmp()
 	def __cmp__(self, other):
 		if self.__eq__(other):
 			return 0
