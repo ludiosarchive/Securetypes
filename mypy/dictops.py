@@ -17,7 +17,7 @@ class securedict(dict):
 
 	C{.popitem()} may behave slightly differently; see the unit tests.
 
-	C{__lt__} and C{__gt__} behave in a completely undefined manner.
+	The C{>, <, >=, <=} operators behave in a completely undefined manner.
 
 	Even if your Python runtime is patched to raise an exception if > n
 	iterations are required to set/get an item from a dict/set, you may need
@@ -98,6 +98,15 @@ class securedict(dict):
 
 	def __ne__(self, other):
 		return not self.__eq__(other)
+
+
+	def __cmp__(self, other):
+		if self.__eq__(other):
+			return 0
+		elif self.__lt__(other):
+			return -1
+		else:
+			return 1
 
 
 	def __repr__(self):
