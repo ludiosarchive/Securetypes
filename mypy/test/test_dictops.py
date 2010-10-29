@@ -1,6 +1,516 @@
-import unittest
+from __future__ import with_statement
 
-from mypy.dictops import attrdict, consensualfrozendict, frozendict
+import unittest
+import UserDict
+
+from mypy.dictops import securedict, attrdict, consensualfrozendict, frozendict
+
+
+class SecureDictTest(unittest.TestCase):
+	"""
+	These tests are based on CPython 2.7's Python/Lib/test/test_dict.py 
+	"""
+	def test_constructor(self):
+		# calling built-in types without argument must return empty
+		self.assertEqual(securedict(), {})
+		self.assertEqual(securedict(), securedict())
+		self.assertIsNot(securedict(), {})
+
+
+	def test_bool(self):
+		self.assertIs(not securedict(), True)
+		self.assertTrue(securedict({1: 2}))
+		self.assertIs(bool(securedict()), False)
+		self.assertIs(bool(securedict({1: 2})), True)
+
+
+	def test_keys(self):
+		d = securedict()
+		self.assertEqual(d.keys(), [])
+		d = securedict({'a': 1, 'b': 2})
+		k = d.keys()
+		self.assertTrue(d.has_key('a'))
+		self.assertTrue(d.has_key('b'))
+
+		self.assertRaises(TypeError, d.keys, None)
+
+
+	def test_values(self):
+		d = securedict()
+		self.assertEqual(d.values(), [])
+		d = securedict({1:2})
+		self.assertEqual(d.values(), [2])
+
+		self.assertRaises(TypeError, d.values, None)
+
+
+	def test_items(self):
+		d = securedict()
+		self.assertEqual(d.items(), [])
+
+		d = securedict({1:2})
+		self.assertEqual(d.items(), [(1, 2)])
+
+		self.assertRaises(TypeError, d.items, None)
+
+
+	def test_has_key(self):
+		d = securedict()
+		self.assertFalse(d.has_key('a'))
+		d = securedict({'a': 1, 'b': 2})
+		k = d.keys()
+		k.sort()
+		self.assertEqual(k, ['a', 'b'])
+
+		self.assertRaises(TypeError, d.has_key)
+
+
+	def test_contains(self):
+		d = securedict()
+		self.assertNotIn('a', d)
+		self.assertFalse('a' in d)
+		self.assertTrue('a' not in d)
+		d = securedict({'a': 1, 'b': 2})
+		self.assertIn('a', d)
+		self.assertIn('b', d)
+		self.assertNotIn('c', d)
+
+		self.assertRaises(TypeError, d.__contains__)
+
+
+	def test_len(self):
+		d = securedict()
+		self.assertEqual(len(d), 0)
+		d = securedict({'a': 1, 'b': 2})
+		self.assertEqual(len(d), 2)
+
+
+	def test_getitem(self):
+		d = securedict({'a': 1, 'b': 2})
+		self.assertEqual(d['a'], 1)
+		self.assertEqual(d['b'], 2)
+		d['c'] = 3
+		d['a'] = 4
+		self.assertEqual(d['c'], 3)
+		self.assertEqual(d['a'], 4)
+		del d['b']
+		self.assertEqual(d, {'a': 4, 'c': 3})
+		self.assertEqual(d, securedict({'a': 4, 'c': 3}))
+
+		self.assertRaises(TypeError, d.__getitem__)
+
+		class BadEq(object):
+			def __eq__(self, other):
+				raise Exc()
+			def __hash__(self):
+				return 24
+
+		d = securedict()
+		d[BadEq()] = 42
+		self.assertRaises(KeyError, d.__getitem__, 23)
+
+		class Exc(Exception): pass
+
+		class BadHash(object):
+			fail = False
+			def __hash__(self):
+				if self.fail:
+					raise Exc()
+				else:
+					return 42
+
+		x = BadHash()
+		d[x] = 42
+		x.fail = True
+		self.assertRaises(Exc, d.__getitem__, x)
+
+
+	def test_clear(self):
+		d = securedict({1:1, 2:2, 3:3})
+		d.clear()
+		self.assertEqual(d, {})
+		self.assertEqual(d, securedict())
+
+		self.assertRaises(TypeError, d.clear, None)
+
+
+	def test_update(self):
+		d = securedict()
+		d.update({1:100})
+		d.update({2:20})
+		d.update({1:1, 2:2, 3:3})
+		self.assertEqual(d, {1:1, 2:2, 3:3})
+		self.assertEqual(d, securedict({1:1, 2:2, 3:3}))
+
+		d.update()
+		self.assertEqual(d, {1:1, 2:2, 3:3})
+		self.assertEqual(d, securedict({1:1, 2:2, 3:3}))
+
+		self.assertRaises((TypeError, AttributeError), d.update, None)
+
+		class SimpleUserDict:
+			def __init__(self):
+				self.d = {1:1, 2:2, 3:3}
+			def keys(self):
+				return self.d.keys()
+			def __getitem__(self, i):
+				return self.d[i]
+		d.clear()
+		d.update(SimpleUserDict())
+		self.assertEqual(d, {1:1, 2:2, 3:3})
+		self.assertEqual(d, securedict({1:1, 2:2, 3:3}))
+
+		class Exc(Exception): pass
+
+		d.clear()
+		class FailingUserDict:
+			def keys(self):
+				raise Exc
+		self.assertRaises(Exc, d.update, FailingUserDict())
+
+		class FailingUserDict:
+			def keys(self):
+				class BogonIter:
+					def __init__(self):
+						self.i = 1
+					def __iter__(self):
+						return self
+					def next(self):
+						if self.i:
+							self.i = 0
+							return 'a'
+						raise Exc
+				return BogonIter()
+			def __getitem__(self, key):
+				return key
+		self.assertRaises(Exc, d.update, FailingUserDict())
+
+		class FailingUserDict:
+			def keys(self):
+				class BogonIter:
+					def __init__(self):
+						self.i = ord('a')
+					def __iter__(self):
+						return self
+					def next(self):
+						if self.i <= ord('z'):
+							rtn = chr(self.i)
+							self.i += 1
+							return rtn
+						raise StopIteration
+				return BogonIter()
+			def __getitem__(self, key):
+				raise Exc
+		self.assertRaises(Exc, d.update, FailingUserDict())
+
+		class badseq(object):
+			def __iter__(self):
+				return self
+			def next(self):
+				raise Exc()
+
+		self.assertRaises(Exc, securedict().update, badseq())
+
+		self.assertRaises(ValueError, securedict().update, [(1, 2, 3)])
+
+
+	def test_fromkeys(self):
+		self.assertEqual(securedict.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
+		d = securedict()
+		self.assertIsNot(d.fromkeys('abc'), d)
+		self.assertEqual(d.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
+		self.assertEqual(d.fromkeys((4,5),0), {4:0, 5:0})
+		self.assertEqual(d.fromkeys([]), {})
+		def g():
+			yield 1
+		self.assertEqual(d.fromkeys(g()), {1:None})
+		self.assertRaises(TypeError, securedict().fromkeys, 3)
+		class dictlike(securedict): pass
+		self.assertEqual(dictlike.fromkeys('a'), {'a':None})
+		self.assertEqual(dictlike().fromkeys('a'), {'a':None})
+		self.assertIsInstance(dictlike.fromkeys('a'), dictlike)
+		self.assertIsInstance(dictlike().fromkeys('a'), dictlike)
+		class mydict(securedict):
+			def __new__(cls):
+				return UserDict.UserDict()
+		ud = mydict.fromkeys('ab')
+		self.assertEqual(ud, {'a':None, 'b':None})
+		self.assertIsInstance(ud, UserDict.UserDict)
+		self.assertRaises(TypeError, dict.fromkeys)
+
+		class Exc(Exception): pass
+
+		class baddict1(securedict):
+			def __init__(self):
+				raise Exc()
+
+		self.assertRaises(Exc, baddict1.fromkeys, [1])
+
+		class BadSeq(object):
+			def __iter__(self):
+				return self
+			def next(self):
+				raise Exc()
+
+		self.assertRaises(Exc, securedict.fromkeys, BadSeq())
+
+		class baddict2(securedict):
+			def __setitem__(self, key, value):
+				raise Exc()
+
+		self.assertRaises(Exc, baddict2.fromkeys, [1])
+
+		# test fast path for dictionary inputs
+		d = securedict(zip(range(6), range(6)))
+		self.assertEqual(securedict.fromkeys(d, 0), securedict(zip(range(6), [0]*6)))
+
+
+	def test_copy(self):
+		d = securedict({1:1, 2:2, 3:3})
+		self.assertEqual(d.copy(), {1:1, 2:2, 3:3})
+		self.assertIsInstance(d.copy(), securedict)
+		self.assertEqual(securedict().copy(), {})
+		self.assertIsInstance(securedict().copy(), securedict)
+		self.assertRaises(TypeError, d.copy, None)
+
+
+	def test_get(self):
+		d = securedict()
+		self.assertIs(d.get('c'), None)
+		self.assertEqual(d.get('c', 3), 3)
+		d = securedict({'a': 1, 'b': 2})
+		self.assertIs(d.get('c'), None)
+		self.assertEqual(d.get('c', 3), 3)
+		self.assertEqual(d.get('a'), 1)
+		self.assertEqual(d.get('a', 3), 1)
+		self.assertRaises(TypeError, d.get)
+		self.assertRaises(TypeError, d.get, None, None, None)
+
+
+	def test_setdefault(self):
+		# dict.setdefault()
+		d = securedict()
+		self.assertIs(d.setdefault('key0'), None)
+		d.setdefault('key0', [])
+		self.assertIs(d.setdefault('key0'), None)
+		d.setdefault('key', []).append(3)
+		self.assertEqual(d['key'][0], 3)
+		d.setdefault('key', []).append(4)
+		self.assertEqual(len(d['key']), 2)
+		self.assertRaises(TypeError, d.setdefault)
+
+		class Exc(Exception): pass
+
+		class BadHash(object):
+			fail = False
+			def __hash__(self):
+				if self.fail:
+					raise Exc()
+				else:
+					return 42
+
+		x = BadHash()
+		d[x] = 42
+		x.fail = True
+		self.assertRaises(Exc, d.setdefault, x, [])
+
+
+	def test_popitem(self):
+		# dict.popitem()
+		for copymode in -1, +1:
+			# -1: b has same structure as a
+			# +1: b is a.copy()
+			for log2size in range(12):
+				size = 2**log2size
+				a = securedict()
+				b = securedict()
+				for i in range(size):
+					a[repr(i)] = i
+					if copymode < 0:
+						b[repr(i)] = i
+				if copymode > 0:
+					b = a.copy()
+				for i in range(size):
+					ka, va = ta = a.popitem()
+					self.assertEqual(va, int(ka))
+					kb, vb = tb = b.popitem()
+					self.assertEqual(vb, int(kb))
+					self.assertFalse(copymode < 0 and ta != tb)
+				self.assertFalse(a)
+				self.assertFalse(b)
+
+		d = securedict()
+		self.assertRaises(KeyError, d.popitem)
+
+
+	def test_pop(self):
+		# Tests for pop with specified key
+		d = securedict()
+		k, v = 'abc', 'def'
+		d[k] = v
+		self.assertRaises(KeyError, d.pop, 'ghi')
+
+		self.assertEqual(d.pop(k), v)
+		self.assertEqual(len(d), 0)
+
+		self.assertRaises(KeyError, d.pop, k)
+
+		# verify longs/ints get same value when key > 32 bits
+		# (for 64-bit archs).  See SF bug #689659.
+		x = 4503599627370496L
+		y = 4503599627370496
+		h = securedict({x: 'anything', y: 'something else'})
+		self.assertEqual(h[x], h[y])
+
+		self.assertEqual(d.pop(k, v), v)
+		d[k] = v
+		self.assertEqual(d.pop(k, 1), v)
+
+		self.assertRaises(TypeError, d.pop)
+
+		class Exc(Exception): pass
+
+		class BadHash(object):
+			fail = False
+			def __hash__(self):
+				if self.fail:
+					raise Exc()
+				else:
+					return 42
+
+		x = BadHash()
+		d[x] = 42
+		x.fail = True
+		self.assertRaises(Exc, d.pop, x)
+
+
+	def test_mutatingiteration(self):
+		# changing dict size during iteration
+		d = securedict()
+		d[1] = 1
+		with self.assertRaises(RuntimeError):
+			for i in d:
+				d[i+1] = 1
+
+
+	def test_repr(self):
+		d = securedict()
+		self.assertEqual(repr(d), 'securedict({})')
+		d[1] = 2
+		self.assertEqual(repr(d), 'securedict({1: 2})')
+		d = {}
+		d[1] = d
+		self.assertEqual(repr(d), 'securedict({1: {...}})')
+
+		class Exc(Exception): pass
+
+		class BadRepr(object):
+			def __repr__(self):
+				raise Exc()
+
+		d = securedict({1: BadRepr()})
+		self.assertRaises(Exc, repr, d)
+
+
+	def test_le(self):
+		self.assertFalse(securedict() < securedict())
+		self.assertFalse(securedict({1: 2}) < securedict({1L: 2L}))
+
+		class Exc(Exception): pass
+
+		class BadCmp(object):
+			def __eq__(self, other):
+				raise Exc()
+			def __hash__(self):
+				return 42
+
+		d1 = securedict({BadCmp(): 1})
+		d2 = securedict({1: 1})
+
+		with self.assertRaises(Exc):
+			d1 < d2
+
+
+	def test_missing(self):
+		# Make sure securedict doesn't have a __missing__ method
+		self.assertFalse(hasattr(securedict, "__missing__"))
+		self.assertFalse(hasattr(securedict(), "__missing__"))
+		# Test several cases:
+		# (D) subclass defines __missing__ method returning a value
+		# (E) subclass defines __missing__ method raising RuntimeError
+		# (F) subclass sets __missing__ instance variable (no effect)
+		# (G) subclass doesn't define __missing__ at a all
+		class D(securedict):
+			def __missing__(self, key):
+				return 42
+		d = D({1: 2, 3: 4})
+		self.assertEqual(d[1], 2)
+		self.assertEqual(d[3], 4)
+		self.assertNotIn(2, d)
+		self.assertNotIn(2, d.keys())
+		self.assertEqual(d[2], 42)
+
+		class E(securedict):
+			def __missing__(self, key):
+				raise RuntimeError(key)
+		e = E()
+		with self.assertRaises(RuntimeError) as c:
+			e[42]
+		self.assertEqual(c.exception.args, (42,))
+
+		class F(securedict):
+			def __init__(self):
+				# An instance variable __missing__ should have no effect
+				self.__missing__ = lambda key: None
+		f = F()
+		with self.assertRaises(KeyError) as c:
+			f[42]
+		self.assertEqual(c.exception.args, (42,))
+
+		class G(securedict):
+			pass
+		g = G()
+		with self.assertRaises(KeyError) as c:
+			g[42]
+		self.assertEqual(c.exception.args, (42,))
+
+
+	def test_tuple_keyerror(self):
+		# SF #1576657
+		d = securedict()
+		with self.assertRaises(KeyError) as c:
+			d[(1,)]
+		self.assertEqual(c.exception.args, ((1,),))
+
+
+	def test_bad_key(self):
+		# Dictionary lookups should fail if __cmp__() raises an exception.
+		class CustomException(Exception):
+			pass
+
+		class BadDictKey:
+			def __hash__(self):
+				return hash(self.__class__)
+
+			def __cmp__(self, other):
+				if isinstance(other, self.__class__):
+					raise CustomException
+				return other
+
+		d = securedict()
+		x1 = BadDictKey()
+		x2 = BadDictKey()
+		d[x1] = 1
+		for stmt in ['d[x2] = 2',
+					 'z = d[x2]',
+					 'x2 in d',
+					 'd.has_key(x2)',
+					 'd.get(x2)',
+					 'd.setdefault(x2, 42)',
+					 'd.pop(x2)',
+					 'd.update({x2: 2})']:
+			with self.assertRaises(CustomException):
+				exec stmt in locals()
 
 
 
