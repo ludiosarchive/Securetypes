@@ -36,6 +36,22 @@ class SecureDictTest(unittest.TestCase):
 		self.assertEqual(securedict(s), {1:1, 2:2, 3:3})
 
 
+	def test_equality(self):
+		self.assertTrue(securedict() == securedict())
+		self.assertTrue(securedict({'one': 2}) == securedict({'one': 2}))
+		self.assertTrue(securedict({'one': 2}) == securedict(one=2))
+
+		self.assertFalse(securedict() != securedict())
+		self.assertFalse(securedict({'one': 2}) != securedict({'one': 2}))
+		self.assertFalse(securedict({'one': 2}) != securedict(one=2))
+
+		self.assertFalse(securedict({1: 2}) == securedict({1: 2, 3: 4}))
+		self.assertFalse(securedict({1: 2, 3: 4}) == securedict({1: 2}))
+
+		self.assertTrue(securedict({1: 2}) != securedict({1: 2, 3: 4}))
+		self.assertTrue(securedict({1: 2, 3: 4}) != securedict({1: 2}))
+
+
 	def test_bool(self):
 		self.assertIs(not securedict(), True)
 		self.assertTrue(securedict({1: 2}))
