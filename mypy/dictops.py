@@ -1,8 +1,10 @@
 from mypy.randgen import secureRandom
+from mypy.constant import Constant
 
 _postImportVars = vars().keys()
 
 
+_NO_ARG = Constant("_NO_ARG")
 _globalSeenStack = []
 
 class securedict(dict):
@@ -113,10 +115,26 @@ class securedict(dict):
 		return dict.get(self, (self._random1, key, self._random2), default)
 
 
-	def setdefault(self, k, d=None):
-		if k not in self:
-			self[k] = d
-		return self[k]
+	def pop(self, key, d=_NO_ARG):
+		try:
+			v = self[key]
+			del self[key]
+			return v
+		except KeyError:
+			if d is _NO_ARG:
+				raise
+			return d
+
+
+	def popitem(self):
+		pair = dict.popitem(self)
+		return (pair[0][1], pair[1])
+
+
+	def setdefault(self, key, d=None):
+		if key not in self:
+			self[key] = d
+		return self[key]
 
 
 	def keys(self):
