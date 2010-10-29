@@ -473,6 +473,8 @@ class SecureDictTest(unittest.TestCase):
 
 		self.assertRaises(Exc, lambda: d1 < d2)
 
+	test_le.todo = "The behavior of > and < on a securedict is undefined"
+
 
 	def test_missing(self):
 		# Make sure securedict doesn't have a __missing__ method

@@ -17,6 +17,8 @@ class securedict(dict):
 
 	C{.popitem()} may behave slightly differently; see the unit tests.
 
+	C{__lt__} and C{__gt__} behave in a completely undefined manner.
+
 	Even if your Python runtime is patched to raise an exception if > n
 	iterations are required to set/get an item from a dict/set, you may need
 	securedict if more than one user contributes to the content of the dict.
