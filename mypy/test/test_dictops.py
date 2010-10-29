@@ -398,9 +398,9 @@ class SecureDictTest(unittest.TestCase):
 		self.assertEqual(repr(d), 'securedict({})')
 		d[1] = 2
 		self.assertEqual(repr(d), 'securedict({1: 2})')
-		d = {}
+		d = securedict()
 		d[1] = d
-		self.assertEqual(repr(d), 'securedict({1: {...}})')
+		self.assertEqual(repr(d), 'securedict({1: securedict({...})})')
 
 		class Exc(Exception): pass
 

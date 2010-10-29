@@ -3,6 +3,8 @@ from mypy.randgen import secureRandom
 _postImportVars = vars().keys()
 
 
+_globalSeenStack = []
+
 class securedict(dict):
 	"""
 	A dictionary that is relatively safe from algorithmic complexity attacks.
@@ -39,7 +41,10 @@ class securedict(dict):
 
 
 	def __getitem__(self, key):
-		return dict.__getitem__(self, (self._random1, key, self._random2))
+		try:
+			return dict.__getitem__(self, (self._random1, key, self._random2))
+		except KeyError:
+			raise KeyError(key)
 
 
 	def __setitem__(self, key, value):
@@ -47,7 +52,10 @@ class securedict(dict):
 
 
 	def __delitem__(self, key):
-		return dict.__delitem__(self, (self._random1, key, self._random2))
+		try:
+			return dict.__delitem__(self, (self._random1, key, self._random2))
+		except KeyError:
+			raise KeyError(key)
 
 
 	def __contains__(self, key):
@@ -55,21 +63,60 @@ class securedict(dict):
 	has_key = __contains__
 
 
-	def __repr__(self):
-		buf = ['securedict({']
-		comma = ''
+	def __eq__(self, other):
+		if not isinstance(other, dict):
+			return False
 		for k in self.__dictiter__():
-			buf.append(comma)
-			comma = ','
-			buf.append(repr(k[1]))
-			buf.append(': ')
-			buf.append(repr(self[k[1]]))
-		buf.append('})')
-		return ''.join(buf)
+			mykey = k[1]
+			if mykey not in other:
+				return False
+			if self[mykey] != other[mykey]:
+				return False
+		for k in other:
+			if k not in self:
+				return False
+		return True
+
+
+	def __repr__(self):
+		try:
+			_globalSeenStack.append(self)
+			buf = ['securedict({']
+			comma = ''
+			for k in self.__dictiter__():
+				buf.append(comma)
+				comma = ','
+				buf.append(repr(k[1]))
+				buf.append(': ')
+				v = self[k[1]]
+				if v in _globalSeenStack:
+					if isinstance(v, securedict):
+						buf.append('securedict({...})')
+					elif isinstance(v, dict):
+						buf.append('{...}')
+					elif isinstance(v, list):
+						buf.append('[...]') # needed?
+					else:
+						# Yeah, we're probably headed for infinite
+						# recursion, but that's what we have to do.
+						buf.append(repr(v))
+				else:
+					buf.append(repr(v))
+			buf.append('})')
+			_globalSeenStack.pop()
+			return ''.join(buf)
+		finally:
+			del _globalSeenStack[:]
 
 
 	def get(self, key, default=None):
 		return dict.get(self, (self._random1, key, self._random2), default)
+
+
+	def setdefault(self, k, d=None):
+		if k not in self:
+			self[k] = d
+		return self[k]
 
 
 	def keys(self):
