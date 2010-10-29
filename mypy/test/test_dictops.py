@@ -16,6 +16,8 @@ class SecureDictTest(unittest.TestCase):
 		self.assertEqual(securedict(), securedict())
 		self.assertIsNot(securedict(), {})
 
+		self.assertEqual(securedict(one=1, two=2), {'one': 1, 'two': 2})
+
 
 	def test_bool(self):
 		self.assertIs(not securedict(), True)
@@ -133,6 +135,14 @@ class SecureDictTest(unittest.TestCase):
 		d[x] = 42
 		x.fail = True
 		self.assertRaises(Exc, d.__getitem__, x)
+
+
+	def test_delitem(self):
+		d = securedict({'a': 1, 'b': 2})
+		del d['a']
+		with self.assertRaises(KeyError) as c:
+			del d['c']
+		self.assertEqual(c.exception.args, ('c',))
 
 
 	def test_clear(self):
@@ -420,6 +430,16 @@ class SecureDictTest(unittest.TestCase):
 
 		d = securedict({1: BadRepr()})
 		self.assertRaises(Exc, repr, d)
+
+
+	def test_reprOtherRecursions(self):
+		d = securedict({1: []})
+		d[1].append(d)
+		self.assertEqual(repr(d), 'securedict({1: [securedict({...})]})')
+
+		d = [securedict({1: None})]
+		d[0][1] = d
+		self.assertEqual(repr(d), '[securedict({1: [...]})]')
 
 
 	def test_le(self):

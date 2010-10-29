@@ -81,34 +81,31 @@ class securedict(dict):
 
 
 	def __repr__(self):
+		if self in _globalSeenStack:
+			return 'securedict({...})'
 		try:
-			_globalSeenStack.append(self)
+			isRootObject = False
+			if not _globalSeenStack:
+				isRootObject = True
+				_globalSeenStack.append(self)
 			buf = ['securedict({']
 			comma = ''
 			for k in self.__dictiter__():
 				buf.append(comma)
 				comma = ','
+				_globalSeenStack.append(k[1])
 				buf.append(repr(k[1]))
+				_globalSeenStack.pop()
 				buf.append(': ')
 				v = self[k[1]]
-				if v in _globalSeenStack:
-					if isinstance(v, securedict):
-						buf.append('securedict({...})')
-					elif isinstance(v, dict):
-						buf.append('{...}')
-					elif isinstance(v, list):
-						buf.append('[...]') # needed?
-					else:
-						# Yeah, we're probably headed for infinite
-						# recursion, but that's what we have to do.
-						buf.append(repr(v))
-				else:
-					buf.append(repr(v))
+				_globalSeenStack.append(v)
+				buf.append(repr(v))
+				_globalSeenStack.pop()
 			buf.append('})')
-			_globalSeenStack.pop()
 			return ''.join(buf)
 		finally:
-			del _globalSeenStack[:]
+			if isRootObject:
+				del _globalSeenStack[:]
 
 
 	def get(self, key, default=None):
