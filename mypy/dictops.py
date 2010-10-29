@@ -43,10 +43,16 @@ class securedict(dict):
 
 
 	def __getitem__(self, key):
-		try:
+		if key in self:
 			return dict.__getitem__(self, (self._random1, key, self._random2))
-		except KeyError:
-			raise KeyError(key)
+		else:
+			# "__missing__ must be a method; it cannot be an instance variable."
+			# See test_missing.
+			missing = getattr(self.__class__, '__missing__', None)
+			if missing:
+				return missing(self, key)
+			else:
+				raise KeyError(key)
 
 
 	def __setitem__(self, key, value):
