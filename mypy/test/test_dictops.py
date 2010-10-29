@@ -6,6 +6,20 @@ import UserDict
 from mypy.dictops import securedict, attrdict, consensualfrozendict, frozendict
 
 
+class SimpleUserDict:
+	def __init__(self):
+		self.d = {1:1, 2:2, 3:3}
+
+
+	def keys(self):
+		return self.d.keys()
+
+
+	def __getitem__(self, i):
+		return self.d[i]
+
+
+
 class SecureDictTest(unittest.TestCase):
 	"""
 	These tests are based on CPython 2.7's Python/Lib/test/test_dict.py 
@@ -17,6 +31,11 @@ class SecureDictTest(unittest.TestCase):
 		self.assertIsNot(securedict(), {})
 
 		self.assertEqual(securedict(one=1, two=2), {'one': 1, 'two': 2})
+
+
+	def test_constructorUsesUpdate(self):
+		s = SimpleUserDict()
+		self.assertEqual(securedict(s), {1:1, 2:2, 3:3})
 
 
 	def test_bool(self):
@@ -168,13 +187,6 @@ class SecureDictTest(unittest.TestCase):
 
 		self.assertRaises((TypeError, AttributeError), d.update, None)
 
-		class SimpleUserDict:
-			def __init__(self):
-				self.d = {1:1, 2:2, 3:3}
-			def keys(self):
-				return self.d.keys()
-			def __getitem__(self, i):
-				return self.d[i]
 		d.clear()
 		d.update(SimpleUserDict())
 		self.assertEqual(d, {1:1, 2:2, 3:3})

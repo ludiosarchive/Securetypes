@@ -26,13 +26,7 @@ class securedict(dict):
 		obj = dict.__new__(cls)
 		obj._random1 = secureRandom(4)
 		obj._random2 = secureRandom(4)
-		if not isinstance(x, dict):
-			# Convert [(1, 2)] -> {1: 2}
-			x = dict(x)
-		for k, v in x.iteritems():
-			obj[k] = v
-		for k, v in kwargs.iteritems():
-			obj[k] = v
+		obj.update(x, **kwargs)
 		return obj
 
 
@@ -40,6 +34,18 @@ class securedict(dict):
 		# We must override __init__ to prevent dict.__init__ from inserting
 		# unsecured keys during instantiation.
 		pass
+
+
+	def update(self, x={}, **kwargs):
+		# See help({}.update) for the algorithm.
+		if hasattr(x, 'keys'):
+			for k in x.keys():
+				self[k] = x[k]
+		else:
+			for k, v in x:
+				self[k] = v
+		for k, v in kwargs.iteritems():
+			self[k] = v
 
 
 	def __getitem__(self, key):
