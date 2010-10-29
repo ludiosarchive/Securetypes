@@ -45,11 +45,15 @@ class SecureDictTest(unittest.TestCase):
 		self.assertFalse(securedict({'one': 2}) != securedict({'one': 2}))
 		self.assertFalse(securedict({'one': 2}) != securedict(one=2))
 
+		self.assertFalse(securedict({1: 2}) == securedict({1: 3}))
 		self.assertFalse(securedict({1: 2}) == securedict({1: 2, 3: 4}))
 		self.assertFalse(securedict({1: 2, 3: 4}) == securedict({1: 2}))
+		self.assertFalse(securedict({1: 2}) == None)
 
+		self.assertTrue(securedict({1: 2}) != securedict({1: 3}))
 		self.assertTrue(securedict({1: 2}) != securedict({1: 2, 3: 4}))
 		self.assertTrue(securedict({1: 2, 3: 4}) != securedict({1: 2}))
+		self.assertTrue(securedict({1: 2}) != None)
 
 
 	def test_bool(self):
