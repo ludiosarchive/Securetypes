@@ -15,20 +15,16 @@ class _DictSubclass(dict):
 
 
 
-def doesDictUpdateUseKeysMethod():
+def isDictUpdateBroken():
 	"""
-	Return C{True} if dict.update(obj) actually calls dict.keys()
-	when isinstance(obj, dict).
-
-	Notably CPython doesn't, and pypy 1.3 does.
+	Return C{True} if the Python implementation's dict update algorithm is
+	broken.  On an unpatched CPython, it is broken, because it does not use
+	.keys() for dicts.  On pypy 1.3, it isn't broken.
 	"""
 	special = _DictSubclass(a=1, b=2, c=3)
 	d = {}
 	d.update(special)
-	return d == {'a': 1}
-
-
-_usesKeysMethod = doesDictUpdateUseKeysMethod()
+	return d != {'a': 1}
 
 
 
@@ -80,10 +76,8 @@ class securedict(dict):
 
 
 	def update(self, x={}, **kwargs):
-		if not _usesKeysMethod and isinstance(x, dict):
-			for k, v in dict.iteritems(x):
-				self[k] = v
-		elif hasattr(x, 'keys'):
+		# Act like pypy instead of like an unpatched CPython
+		if hasattr(x, 'keys'):
 			for k in x.keys():
 				self[k] = x[k]
 		else:

@@ -1,7 +1,7 @@
 from twisted.trial import unittest
 import UserDict
 
-from mypy.dictops import (doesDictUpdateUseKeysMethod, securedict, attrdict,
+from mypy.dictops import (isDictUpdateBroken, securedict, attrdict,
 	consensualfrozendict, frozendict)
 from mypy.testhelpers import ReallyEqualMixin
 
@@ -264,11 +264,19 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertRaises(ValueError, securedict().update, [(1, 2, 3)])
 
 
-	def test_updateDictSubclass(self):
+	def test_updateWithSecureDict(self):
 		"""
-		securedict's update algorithm matches dict's update algorithm:
-		passing in a subclass of dict ignores the C{keys} and C{__iter__}
-		methods.
+		Updating a securedict with another securedict works.
+		"""
+		d = securedict()
+		d.update(securedict({1:100}))
+		self.assertEqual(d, {1:100})
+
+
+	def test_updateAlgorithmNotBroken(self):
+		"""
+		securedict.update (and __init__) use pypy's dict update algorithm
+		instead of the broken CPython algorithm.
 		"""
 		class DictSubclass(dict):
 			def keys(self):
@@ -279,10 +287,15 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		special = DictSubclass(a=1, b=2, c=3)
 		d = securedict()
 		d.update(special)
-		if doesDictUpdateUseKeysMethod():
-			self.assertEqual(d, dict(a=1))
+		self.assertEqual(d, dict(a=1))
+
+
+	def test_dictASecureDict(self):
+		dictedSecureDict = dict(securedict(a=1, b=2))
+		if not isDictUpdateBroken():
+			self.assertEqual(dictedSecureDict, dict(a=1, b=2))
 		else:
-			self.assertEqual(d, dict(a=1, b=2, c=3))
+			self.assertNotEqual(dictedSecureDict, dict(a=1, b=2))
 
 
 	def test_fromkeys(self):
