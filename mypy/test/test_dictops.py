@@ -28,7 +28,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		# calling built-in types without argument must return empty
 		self.assertEqual(securedict(), {})
 		self.assertEqual(securedict(), securedict())
-		self.assertIsNot(securedict(), {})
+		self.assertNotIdentical(securedict(), {})
 
 		self.assertEqual(securedict(one=1, two=2), {'one': 1, 'two': 2})
 
@@ -56,10 +56,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 
 	def test_bool(self):
-		self.assertIs(not securedict(), True)
+		self.assertIdentical(not securedict(), True)
 		self.assertTrue(securedict({1: 2}))
-		self.assertIs(bool(securedict()), False)
-		self.assertIs(bool(securedict({1: 2})), True)
+		self.assertIdentical(bool(securedict()), False)
+		self.assertIdentical(bool(securedict({1: 2})), True)
 
 
 	def test_keys(self):
@@ -301,7 +301,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 	def test_fromkeys(self):
 		self.assertEqual(securedict.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
 		d = securedict()
-		self.assertIsNot(d.fromkeys('abc'), d)
+		self.assertNotIdentical(d.fromkeys('abc'), d)
 		self.assertEqual(d.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
 		self.assertEqual(d.fromkeys((4,5),0), {4:0, 5:0})
 		self.assertEqual(d.fromkeys([]), {})
@@ -360,10 +360,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 	def test_get(self):
 		d = securedict()
-		self.assertIs(d.get('c'), None)
+		self.assertIdentical(d.get('c'), None)
 		self.assertEqual(d.get('c', 3), 3)
 		d = securedict({'a': 1, 'b': 2})
-		self.assertIs(d.get('c'), None)
+		self.assertIdentical(d.get('c'), None)
 		self.assertEqual(d.get('c', 3), 3)
 		self.assertEqual(d.get('a'), 1)
 		self.assertEqual(d.get('a', 3), 1)
@@ -374,9 +374,9 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 	def test_setdefault(self):
 		# dict.setdefault()
 		d = securedict()
-		self.assertIs(d.setdefault('key0'), None)
+		self.assertIdentical(d.setdefault('key0'), None)
 		d.setdefault('key0', [])
-		self.assertIs(d.setdefault('key0'), None)
+		self.assertIdentical(d.setdefault('key0'), None)
 		d.setdefault('key', []).append(3)
 		self.assertEqual(d['key'][0], 3)
 		d.setdefault('key', []).append(4)
@@ -796,7 +796,7 @@ class FrozenDictTests(_DictReadingTests, _BaseFrozenDictTests, unittest.TestCase
 	def test_copy(self):
 		d = self.dtype(x=3)
 		# .copy() returns a reference to the same object
-		self.assertIs(d, d.copy())
+		self.assertIdentical(d, d.copy())
 
 
 
