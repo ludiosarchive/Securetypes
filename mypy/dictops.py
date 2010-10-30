@@ -49,13 +49,16 @@ class securedict(dict):
 
 
 	def update(self, x={}, **kwargs):
-		# See help({}.update) for the algorithm.
-		if hasattr(x, 'keys'):
+		if isinstance(x, dict):
+			for k, v in dict.iteritems(x):
+				self[k] = v
+		elif hasattr(x, 'keys'):
 			for k in x.keys():
 				self[k] = x[k]
 		else:
 			for k, v in x:
 				self[k] = v
+
 		for k, v in kwargs.iteritems():
 			self[k] = v
 

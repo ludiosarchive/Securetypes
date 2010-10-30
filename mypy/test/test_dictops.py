@@ -263,6 +263,24 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertRaises(ValueError, securedict().update, [(1, 2, 3)])
 
 
+	def test_updateDictSubclass(self):
+		"""
+		securedict's update algorithm matches dict's update algorithm:
+		passing in a subclass of dict ignores the C{keys} and C{__iter__}
+		methods.
+		"""
+		class DictSubclass(dict):
+			def keys(self):
+				return ['a']
+			def __iter__(self):
+				return ['b']
+
+		special = DictSubclass(a=1, b=2, c=3)
+		d = securedict()
+		d.update(special)
+		self.assertEqual(d, dict(a=1, b=2, c=3))
+
+
 	def test_fromkeys(self):
 		self.assertEqual(securedict.fromkeys('abc'), {'a':None, 'b':None, 'c':None})
 		d = securedict()
