@@ -29,7 +29,6 @@ def isDictUpdateBroken():
 
 
 _NO_ARG = Constant("_NO_ARG")
-_globalSeenStack = []
 
 class securedict(dict):
 	"""
@@ -58,11 +57,11 @@ class securedict(dict):
 	In Python 2.7+, calling C{.viewitems()} or C{.viewkeys()} raises
 	L{NotImplementedError}, while C{.viewvalues()} works as usual.
 	"""
-	__slots__ = ('_random1', '_random2')
+	__slots__ = ('_random1', '_random2', '_inMyRepr')
 
 	def __new__(cls, x={}, **kwargs):
-		# TODO: make sure this doesn't mutate old dict
 		obj = dict.__new__(cls)
+		obj._inMyRepr = False
 		obj._random1 = secureRandom(4)
 		obj._random2 = secureRandom(4)
 		obj.update(x, **kwargs)
@@ -148,31 +147,27 @@ class securedict(dict):
 
 
 	def _repr(self, withSecureDictString):
-		if self in _globalSeenStack:
+		if self._inMyRepr:
 			return 'securedict({...})'
 		try:
 			isRootObject = False
-			if not _globalSeenStack:
+			if not self._inMyRepr:
 				isRootObject = True
-				_globalSeenStack.append(self)
+				self._inMyRepr = True
 			buf = ['securedict({' if withSecureDictString else '{']
 			comma = ''
 			for k in self.__dictiter__():
 				buf.append(comma)
 				comma = ', '
-				_globalSeenStack.append(k[1])
 				buf.append(repr(k[1]))
-				_globalSeenStack.pop()
 				buf.append(': ')
 				v = self[k[1]]
-				_globalSeenStack.append(v)
 				buf.append(repr(v))
-				_globalSeenStack.pop()
 			buf.append('})' if withSecureDictString else '}')
 			return ''.join(buf)
 		finally:
 			if isRootObject:
-				del _globalSeenStack[:]
+				self._inMyRepr = False
 
 
 	def __repr__(self):
