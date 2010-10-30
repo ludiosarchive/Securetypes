@@ -162,7 +162,7 @@ class securedict(dict):
 			comma = ''
 			for k in self.__dictiter__():
 				buf.append(comma)
-				comma = ','
+				comma = ', '
 				_globalSeenStack.append(k[1])
 				buf.append(repr(k[1]))
 				_globalSeenStack.pop()
