@@ -4,6 +4,34 @@ from mypy.constant import Constant
 _postImportVars = vars().keys()
 
 
+class _DictSubclass(dict):
+
+	def keys(self):
+		return ['a']
+
+
+	def __iter__(self):
+		return ['b']
+
+
+
+def doesDictUpdateUseKeysMethod():
+	"""
+	Return C{True} if dict.update(obj) actually calls dict.keys()
+	when isinstance(obj, dict).
+
+	Notably CPython doesn't, and pypy 1.3 does.
+	"""
+	special = _DictSubclass(a=1, b=2, c=3)
+	d = {}
+	d.update(special)
+	return d == {'a': 1}
+
+
+_usesKeysMethod = doesDictUpdateUseKeysMethod()
+
+
+
 _NO_ARG = Constant("_NO_ARG")
 _globalSeenStack = []
 
@@ -49,7 +77,7 @@ class securedict(dict):
 
 
 	def update(self, x={}, **kwargs):
-		if isinstance(x, dict):
+		if not _usesKeysMethod and isinstance(x, dict):
 			for k, v in dict.iteritems(x):
 				self[k] = v
 		elif hasattr(x, 'keys'):

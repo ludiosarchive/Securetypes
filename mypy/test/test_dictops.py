@@ -1,7 +1,8 @@
 from twisted.trial import unittest
 import UserDict
 
-from mypy.dictops import securedict, attrdict, consensualfrozendict, frozendict
+from mypy.dictops import (doesDictUpdateUseKeysMethod, securedict, attrdict,
+	consensualfrozendict, frozendict)
 from mypy.testhelpers import ReallyEqualMixin
 
 
@@ -278,7 +279,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		special = DictSubclass(a=1, b=2, c=3)
 		d = securedict()
 		d.update(special)
-		self.assertEqual(d, dict(a=1, b=2, c=3))
+		if doesDictUpdateUseKeysMethod():
+			self.assertEqual(d, dict(a=1))
+		else:
+			self.assertEqual(d, dict(a=1, b=2, c=3))
 
 
 	def test_fromkeys(self):
