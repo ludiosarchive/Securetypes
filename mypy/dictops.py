@@ -64,14 +64,7 @@ class securedict(dict):
 		obj._inMyRepr = False
 		obj._random1 = secureRandom(4)
 		obj._random2 = secureRandom(4)
-		obj.update(x, **kwargs)
 		return obj
-
-
-	def __init__(self, *args, **kwargs):
-		# We must override __init__ to prevent dict.__init__ from inserting
-		# unsecured keys during instantiation.
-		pass
 
 
 	def update(self, x={}, **kwargs):
@@ -85,6 +78,8 @@ class securedict(dict):
 
 		for k, v in kwargs.iteritems():
 			self[k] = v
+
+	__init__ = update
 
 
 	def __getitem__(self, key):

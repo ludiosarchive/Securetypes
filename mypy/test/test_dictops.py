@@ -38,6 +38,16 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertEqual(securedict(s), {1:1, 2:2, 3:3})
 
 
+	def test_initDoesUpdate(self):
+		"""
+		You can use securedict.__init__ to update a securedict, just like
+		you can use dict.__init__ to update a dict.
+		"""
+		d = securedict()
+		d.__init__({1: 2})
+		self.assertEqual(d, {1: 2})
+
+
 	def test_equality(self):
 		for a, b in [
 			(securedict(), securedict()),
