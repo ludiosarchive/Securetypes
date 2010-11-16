@@ -141,6 +141,13 @@ class securedict(dict):
 			return 1
 
 
+	__dictiter__ = dict.__iter__
+
+	def __iter__(self):
+		for k in self.__dictiter__():
+			yield k[1]
+
+
 	def _repr(self, withSecureDictString):
 		if self._inMyRepr:
 			return 'securedict({...})'
@@ -201,12 +208,6 @@ class securedict(dict):
 
 	def keys(self):
 		return list(k[1] for k in self.__dictiter__())
-
-	__dictiter__ = dict.__iter__
-
-	def __iter__(self):
-		for k in self.__dictiter__():
-			yield k[1]
 
 
 	def iteritems(self):
