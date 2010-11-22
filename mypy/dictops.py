@@ -27,6 +27,11 @@ def isDictUpdateBroken():
 	return d != {'a': 1}
 
 
+# If you see Constant("_securedictmarker") show up in your dict, you probably
+# dict()ed a securedict in CPython.  Don't dict() securedicts for security
+# reasons, but especially not in CPython, because CPython's dict update
+# algorithm is broken: http://bugs.python.org/issue10240
+_securedictmarker = Constant("_securedictmarker")
 
 _NO_ARG = Constant("_NO_ARG")
 
@@ -84,7 +89,8 @@ class securedict(dict):
 
 	def __getitem__(self, key):
 		if key in self:
-			return dict.__getitem__(self, (self._random1, key, self._random2))
+			return dict.__getitem__(self,
+				(_securedictmarker, self._random1, key, self._random2))
 		else:
 			# "__missing__ must be a method; it cannot be an instance variable."
 			# See test_missing.
@@ -96,18 +102,21 @@ class securedict(dict):
 
 
 	def __setitem__(self, key, value):
-		return dict.__setitem__(self, (self._random1, key, self._random2), value)
+		return dict.__setitem__(self,
+			(_securedictmarker, self._random1, key, self._random2), value)
 
 
 	def __delitem__(self, key):
 		try:
-			return dict.__delitem__(self, (self._random1, key, self._random2))
+			return dict.__delitem__(self,
+				(_securedictmarker, self._random1, key, self._random2))
 		except KeyError:
 			raise KeyError(key)
 
 
 	def __contains__(self, key):
-		return dict.__contains__(self, (self._random1, key, self._random2))
+		return dict.__contains__(self,
+			(_securedictmarker, self._random1, key, self._random2))
 	has_key = __contains__
 
 
@@ -115,7 +124,7 @@ class securedict(dict):
 		if not isinstance(other, dict):
 			return False
 		for k in self.__dictiter__():
-			mykey = k[1]
+			mykey = k[2]
 			if mykey not in other:
 				return False
 			if self[mykey] != other[mykey]:
@@ -145,7 +154,7 @@ class securedict(dict):
 
 	def __iter__(self):
 		for k in self.__dictiter__():
-			yield k[1]
+			yield k[2]
 
 
 	def _repr(self, withSecureDictString):
@@ -161,9 +170,9 @@ class securedict(dict):
 			for k in self.__dictiter__():
 				buf.append(comma)
 				comma = ', '
-				buf.append(repr(k[1]))
+				buf.append(repr(k[2]))
 				buf.append(': ')
-				v = self[k[1]]
+				v = self[k[2]]
 				buf.append(repr(v))
 			buf.append('})' if withSecureDictString else '}')
 			return ''.join(buf)
@@ -181,7 +190,8 @@ class securedict(dict):
 
 
 	def get(self, key, default=None):
-		return dict.get(self, (self._random1, key, self._random2), default)
+		return dict.get(self,
+			(_securedictmarker, self._random1, key, self._random2), default)
 
 
 	def pop(self, key, d=_NO_ARG):
@@ -197,7 +207,7 @@ class securedict(dict):
 
 	def popitem(self):
 		pair = dict.popitem(self)
-		return (pair[0][1], pair[1])
+		return (pair[0][2], pair[1])
 
 
 	def setdefault(self, key, d=None):
@@ -207,16 +217,16 @@ class securedict(dict):
 
 
 	def keys(self):
-		return list(k[1] for k in self.__dictiter__())
+		return list(k[2] for k in self.__dictiter__())
 
 
 	def iteritems(self):
 		for k, v in dict.iteritems(self):
-			yield k[1], v
+			yield k[2], v
 
 
 	def items(self):
-		return list((k[1], v) for k, v in dict.iteritems(self))
+		return list((k[2], v) for k, v in dict.iteritems(self))
 
 
 	def copy(self):
