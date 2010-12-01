@@ -18,8 +18,8 @@ class _DictSubclass(dict):
 def isDictUpdateBroken():
 	"""
 	Return C{True} if the Python implementation's dict update algorithm is
-	broken.  On an unpatched CPython, it is broken, because it does not use
-	.keys() for dicts.  On pypy 1.3, it isn't broken.
+	broken. In CPython, it is broken, because it does not use .keys() for
+	subclasses of dicts.  In pypy, it isn't broken.
 	"""
 	special = _DictSubclass(a=1, b=2, c=3)
 	d = {}
@@ -41,16 +41,12 @@ class securedict(dict):
 	To be safe from such attacks, it modifies the keys, so that they have
 	unpredictable C{hash()}es.
 
-	Even if your Python runtime is patched to raise an exception if > n
-	iterations are required to set/get an item from a dict/set, you may need
-	securedict if more than one user contributes to the content of the dict.
-
 	The fine print:
 
 	A securedict is C{==} to a normal dict (if the contents are the same).
 
-	There is a major limitation: with an unpatched CPython, dict()ing a
-	securedict gives you garbage.  In pypy, it works fine.
+	There is a major limitation: in CPython, dict()ing a securedict gives you
+	garbage.  In pypy, it works fine.
 
 	C{.copy()} returns a L{securedict}.
 
@@ -73,7 +69,8 @@ class securedict(dict):
 
 
 	def update(self, x={}, **kwargs):
-		# Act like pypy instead of like an unpatched CPython
+		# Update like the documented update algorithm and like pypy, not
+		# like CPython.
 		if hasattr(x, 'keys'):
 			for k in x.keys():
 				self[k] = x[k]
