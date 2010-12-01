@@ -63,8 +63,8 @@ class securedict(dict):
 	def __new__(cls, x={}, **kwargs):
 		obj = dict.__new__(cls)
 		obj._inMyRepr = False
-		obj._random1 = secureRandom(4)
-		obj._random2 = secureRandom(4)
+		obj._random1 = secureRandom(8)
+		obj._random2 = secureRandom(8)
 		return obj
 
 
