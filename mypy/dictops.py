@@ -311,6 +311,9 @@ class consensualfrozendict(dict):
 
 class frozendict(tuple):
 	"""
+	DON'T USE: this is unfinished, broken in several ways, and will
+	probably be removed.
+
 	A C{dict} that is really immutable. Ideal for small dicts.
 
 	It is slower than a dict (often O(N) instead of O(1)) because it is based
@@ -421,23 +424,9 @@ class frozendict(tuple):
 		return dict(self.__tupleiter__()).viewvalues()
 
 
-# A custom __repr__, speed difference unknown:
-#	def __repr__(self):
-#		buf = ['frozendict({']
-#		comma = ''
-#		for k, v in self.__tupleiter__():
-#			buf.append(comma)
-#			comma = ','
-#			buf.append(repr(k))
-#			buf.append(': ')
-#			buf.append(repr(v))
-#		buf.append('})')
-#		return ''.join(buf)
-
-
-# We could also do an insane hack based on using both a frozenset and a
-# tuple. The frozenset would have fake-hashable markers that tell you which
-# index to look up in the tuple.
+# Alternate implementation idea: We could also do an insane hack based on
+# using both a frozenset and a tuple.  The frozenset would have fake-hashable
+# markers that tell you which index to look up in the tuple.
 
 
 try:
