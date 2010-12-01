@@ -230,8 +230,7 @@ class securedict(dict):
 
 
 	def copy(self):
-		# Must do this, otherwise the copy is "double secured"
-		return securedict(self.items())
+		return securedict(self)
 
 
 	if hasattr({}, 'viewitems'): # Python 2.7+
