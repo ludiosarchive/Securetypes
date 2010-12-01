@@ -440,5 +440,9 @@ class frozendict(tuple):
 # index to look up in the tuple.
 
 
-from pypycpyo import optimizer
-optimizer.bind_all_many(vars(), _postImportVars)
+try:
+	from pypycpyo import optimizer
+except ImportError:
+	pass
+else:
+	optimizer.bind_all_many(vars(), _postImportVars)
