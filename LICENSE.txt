@@ -21,6 +21,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 
 
+mypy/ascii_with_complaints.py license:
+
+See mypy/ascii_with_complaints.py
+
+
 CPython 2.7 license:
 
 A. HISTORY OF THE SOFTWARE
