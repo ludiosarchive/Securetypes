@@ -1,3 +1,5 @@
+import sys
+
 from mypy.randgen import secureRandom
 from mypy.constant import Constant
 
@@ -425,9 +427,5 @@ class frozendict(tuple):
 # markers that tell you which index to look up in the tuple.
 
 
-try:
-	from pypycpyo import optimizer
-except ImportError:
-	pass
-else:
-	optimizer.bind_all_many(vars(), _postImportVars)
+from mypy import constant_binder
+constant_binder.bindRecursive(sys.modules[__name__], _postImportVars)
