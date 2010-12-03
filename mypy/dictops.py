@@ -120,33 +120,28 @@ class securedict(dict):
 
 
 	def __eq__(self, other):
-		if not isinstance(other, dict):
-			return False
-		for k in self.__dictiter__():
-			mykey = k[2]
-			if mykey not in other:
-				return False
-			if self[mykey] != other[mykey]:
-				return False
-		for k in other:
-			if k not in self:
-				return False
-		return True
+		return self.__cmp__(other) == 0
 
 
 	def __ne__(self, other):
-		return not self.__eq__(other)
+		return self.__cmp__(other) != 0
 
 
-	# We must define __cmp__ so that dict.__cmp__ is not used
+	# Note that we must have a __cmp__ so that dict.__cmp__ is not used
 	# by cmp()
 	def __cmp__(self, other):
-		if self.__eq__(other):
-			return 0
-		elif self.__lt__(other):
-			return -1
-		else:
-			return 1
+		if not isinstance(other, dict):
+			return 1 if id(self) > id(other) else -1
+		for k in self.__dictiter__():
+			mykey = k[2]
+			if mykey not in other:
+				return 1 if id(self) > id(other) else -1
+			if self[mykey] != other[mykey]:
+				return 1 if id(self) > id(other) else -1
+		for k in other:
+			if k not in self:
+				return 1 if id(self) > id(other) else -1
+		return 0
 
 
 	__dictiter__ = dict.__iter__
