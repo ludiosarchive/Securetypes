@@ -422,5 +422,5 @@ class frozendict(tuple):
 # markers that tell you which index to look up in the tuple.
 
 
-from mypy import constant_binder
-constant_binder.bindRecursive(sys.modules[__name__], _postImportVars)
+from mypy import refbinder
+refbinder.bindRecursive(sys.modules[__name__], _postImportVars)
