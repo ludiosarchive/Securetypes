@@ -55,7 +55,10 @@ class securedict(dict):
 	C{.popitem()} may pop a different item than an equal dict would; see the
 	unit tests.
 
-	The C{>, <, >=, <=} operators behave in a completely undefined manner.
+	A securedict's < and > compares the securedict's id instead of using
+	Python's complicated algorithm.  This may change in the future to work
+	like Python's algorithm (see CPython dictobject.c:dict_compare).  Don't
+	rely on the current "compares id" behavior.
 
 	In Python 2.7+, calling C{.viewitems()} or C{.viewkeys()} raises
 	L{NotImplementedError}, while C{.viewvalues()} works as usual.
@@ -125,6 +128,28 @@ class securedict(dict):
 
 	def __ne__(self, other):
 		return self.__cmp__(other) != 0
+
+
+	def __lt__(self, other):
+		return id(self) < id(other)
+
+
+	def __gt__(self, other):
+		return id(self) > id(other)
+
+
+	def __le__(self, other):
+		# Object id comparison is faster, so try that first.
+		if id(self) < id(other):
+			return True
+		return self.__cmp__(other) == 0
+
+
+	def __ge__(self, other):
+		# Object id comparison is faster, so try that first.
+		if id(self) > id(other):
+			return True
+		return self.__cmp__(other) == 0
 
 
 	# Note that we must have a __cmp__ so that dict.__cmp__ is not used

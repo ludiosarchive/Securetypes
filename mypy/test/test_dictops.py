@@ -55,6 +55,11 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 			(securedict({'one': 2}), securedict(one=2)),
 		]:
 			self.assertReallyEqual(a, b)
+			# If it is ==, it should also be also be <= and >=.
+			self.assertTrue(a <= b)
+			self.assertTrue(b <= a)
+			self.assertTrue(a >= b)
+			self.assertTrue(b >= a)
 
 		for a, b in [
 			(securedict({1: 2}), securedict({1: 3})),
