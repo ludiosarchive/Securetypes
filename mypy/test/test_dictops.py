@@ -530,24 +530,27 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertEqual(repr(d), '[securedict({1: [...]})]')
 
 
-	def test_le(self):
-		self.assertFalse(securedict() < securedict())
-		self.assertFalse(securedict({1: 2}) < securedict({1L: 2L}))
-
-		class Exc(Exception): pass
-
-		class BadCmp(object):
-			def __eq__(self, other):
-				raise Exc()
-			def __hash__(self):
-				return 42
-
-		d1 = securedict({BadCmp(): 1})
-		d2 = securedict({1: 1})
-
-		self.assertRaises(Exc, lambda: d1 < d2)
-
-	test_le.todo = "The behavior of > and < on a securedict is undefined"
+	def test_lt_gt(self):
+		"""
+		< and > on a securedict compares the securedict's id(...).
+		"""
+		one = securedict({1: 2})
+		two = securedict({3: 4})
+		compares = [(one, two), (two, one)]
+		for a, b in compares:
+			assert id(a) != id(b)
+			if id(a) < id(b):
+				a, b = b, a
+			self.assertTrue(a > b)
+			self.assertTrue(a >= b)
+			self.assertTrue(b < a)
+			self.assertTrue(b <= a)
+			self.assertFalse(a < b)
+			self.assertFalse(a <= b)
+			self.assertFalse(b > a)
+			self.assertFalse(b >= a)
+			self.assertEqual(1, cmp(a, b))
+			self.assertEqual(-1, cmp(b, a))
 
 
 	def test_missing(self):
