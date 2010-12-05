@@ -155,7 +155,7 @@ class securedict(dict):
 	# Note that we must have a __cmp__ so that dict.__cmp__ is not used
 	# by cmp()
 	def __cmp__(self, other):
-		if not isinstance(other, dict):
+		if not isinstance(other, dict) or len(self) != len(other):
 			return 1 if id(self) > id(other) else -1
 		for k in self.__dictiter__():
 			mykey = k[2]
