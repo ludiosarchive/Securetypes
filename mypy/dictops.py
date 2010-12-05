@@ -159,9 +159,7 @@ class securedict(dict):
 			return 1 if id(self) > id(other) else -1
 		for k in self.__dictiter__():
 			mykey = k[2]
-			if mykey not in other:
-				return 1 if id(self) > id(other) else -1
-			if self[mykey] != other[mykey]:
+			if mykey not in other or self[mykey] != other[mykey]:
 				return 1 if id(self) > id(other) else -1
 		for k in other:
 			if k not in self:
