@@ -48,7 +48,8 @@ class securedict(dict):
 	A securedict is C{==} to a normal dict (if the contents are the same).
 
 	There is a major limitation: in CPython, dict()ing a securedict gives you
-	garbage.  In pypy, it works fine.
+	garbage.  In pypy it works, though you still should not do it because
+	it defeats the purpose of securedict.
 
 	C{.copy()} returns a L{securedict}.
 
