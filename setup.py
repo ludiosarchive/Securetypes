@@ -5,7 +5,7 @@ from distutils.core import setup
 import mypy
 
 setup(
-	name='mypy',
+	name='Mypy',
 	version=mypy.__version__,
 	description="Python utilities usable in a wide variety of applications.",
 	packages=['mypy', 'mypy.test'],
