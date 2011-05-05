@@ -55,6 +55,13 @@ Again: *never* `dict()` a `securedict`.
 
 
 
+Requirements
+============
+
+CPython 2.4+ or pypy (tested 1.4 and 1.5)
+
+
+
 Installation
 ============
 
