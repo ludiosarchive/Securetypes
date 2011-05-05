@@ -2,8 +2,6 @@ __version__ = '11.5.5'
 
 from os import urandom
 
-from mypy.constant import Constant
-
 
 class _DictSubclass(dict):
 
@@ -28,13 +26,13 @@ def isDictUpdateBroken():
 	return d != {'a': 1}
 
 
-# If you see Constant("_securedictmarker") show up in your dict, you probably
-# dict()ed a securedict in CPython.  Don't dict() securedicts for security
-# reasons, but especially not in CPython, because CPython's dict update
-# algorithm is broken: http://bugs.python.org/issue10240
-_securedictmarker = Constant("_securedictmarker")
+# If you see ("_securedictmarker", <object object at 0x>) show up in your dict,
+# you probably dict()ed a securedict in CPython.  Don't dict() securedicts
+# for security reasons, but especially not in CPython, because CPython's dict
+# update algorithm is broken: http://bugs.python.org/issue10240
+_securedictmarker = ("_securedictmarker", object())
 
-_NO_ARG = Constant("_NO_ARG")
+_NO_ARG = object()
 
 class securedict(dict):
 	"""
