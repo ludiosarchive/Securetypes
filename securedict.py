@@ -1,3 +1,5 @@
+__version__ = '11.5.5'
+
 import sys
 
 from mypy.randgen import secureRandom

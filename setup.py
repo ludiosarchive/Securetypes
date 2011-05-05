@@ -2,12 +2,12 @@
 
 from distutils.core import setup
 
-import mypy
+import securedict
 
 setup(
-	name='Mypy',
-	version=mypy.__version__,
-	description="Python utilities usable in a wide variety of applications.",
-	packages=['mypy', 'mypy.test'],
-	package_data={'mypy.test': ['images/*']},
+	name='Securedict',
+	version=securedict.__version__,
+	description="Implementation of dict that protects against " +
+		"algorithmic complexity attacks",
+	py_modules=['securedict', 'test_securedict'],
 )
