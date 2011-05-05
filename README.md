@@ -17,6 +17,9 @@ d = securedict(x=3)
 d['y'] = 4
 
 print d # prints: securedict({'y': 4, 'x': 3})
+
+# Special features:
+d.reprLikeDict() # prints {'y': 4, 'x': 3}
 ```
 
 For more information about algorithmic complexity attacks, see:
