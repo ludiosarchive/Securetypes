@@ -158,14 +158,14 @@ class securedict(dict):
 	# by cmp()
 	def __cmp__(self, other):
 		if not isinstance(other, dict) or len(self) != len(other):
-			return 1 if id(self) > id(other) else -1
+			return (-1, 1)[id(self) > id(other)]
 		for k in self.__dictiter__():
 			mykey = k[2]
 			if mykey not in other or self[mykey] != other[mykey]:
-				return 1 if id(self) > id(other) else -1
+				return (-1, 1)[id(self) > id(other)]
 		for k in other:
 			if k not in self:
-				return 1 if id(self) > id(other) else -1
+				return (-1, 1)[id(self) > id(other)]
 		return 0
 
 
@@ -184,7 +184,8 @@ class securedict(dict):
 			if not self._inMyRepr:
 				isRootObject = True
 				self._inMyRepr = True
-			buf = ['securedict({' if withSecureDictString else '{']
+			buf = []
+			buf.append(('{', 'securedict({')[withSecureDictString])
 			comma = ''
 			for k in self.__dictiter__():
 				buf.append(comma)
@@ -193,7 +194,7 @@ class securedict(dict):
 				buf.append(': ')
 				v = self[k[2]]
 				buf.append(repr(v))
-			buf.append('})' if withSecureDictString else '}')
+			buf.append(('}', '})')[withSecureDictString])
 			return ''.join(buf)
 		finally:
 			if isRootObject:
