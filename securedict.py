@@ -107,7 +107,7 @@ class securedict(dict):
 	"""
 	__slots__ = ('_random1', '_random2', '_inMyRepr')
 
-	def __new__(cls, x={}, **kwargs):
+	def __new__(cls, __securedict_securedict_ignored=None, **kwargs):
 		obj = dict.__new__(cls)
 		obj._inMyRepr = False
 		rand = _secureRandom(16)
