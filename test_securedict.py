@@ -1,3 +1,5 @@
+import sys
+
 from twisted.trial import unittest
 import UserDict
 
@@ -674,6 +676,9 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 					 'd.pop(x2)',
 					 'd.update({x2: 2})']:
 			self.assertRaises(CustomException, execstmt, stmt, locals())
+
+	if sys.version_info < (2, 5):
+		test_bad_key.skip = "Python < 2.5 doesn't support this behavior"
 
 
 	def test_viewmethods(self):
