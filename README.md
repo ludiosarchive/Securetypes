@@ -19,6 +19,12 @@ d['y'] = 4
 print d # prints: securedict({'y': 4, 'x': 3})
 ```
 
+For more information about algorithmic complexity attacks, see:
+
+*	http://www.cs.rice.edu/~scrosby/hash/CrosbyWallach_UsenixSec2003/
+
+*	http://mail.python.org/pipermail/python-dev/2003-May/035874.html
+
 
 
 The fine print
