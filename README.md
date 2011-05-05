@@ -32,6 +32,8 @@ The fine print
 
 *	A securedict is `==` to a normal dict (if the contents are the same).
 
+*	`securedict` is a subclass of `dict`.
+
 *	There is a major limitation: in CPython, `dict()`ing a `securedict` gives you
 	garbage.  In pypy it works, though you still should not do it because
 	it defeats the purpose of `securedict`.
