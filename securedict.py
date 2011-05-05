@@ -3,6 +3,48 @@ __version__ = '11.5.5.1'
 from os import urandom
 
 
+class _RandomFactory(object):
+	"""
+	Factory providing a L{secureRandom} method.
+
+	This implementation buffers data from os.urandom, to avoid calling it
+	every time random data is needed.
+	"""
+	__slots__ = ('_bufferSize', '_buffer', '_position')
+
+	def __init__(self, bufferSize):
+		self._bufferSize = bufferSize
+		self._getMore(bufferSize)
+
+
+	def _getMore(self, howMuch):
+		self._buffer = urandom(howMuch)
+		self._position = 0
+
+
+	def secureRandom(self, nbytes):
+		"""
+		Return a number of relatively secure random bytes.
+
+		@param nbytes: number of bytes to generate.
+		@type nbytes: C{int}
+
+		@return: a string of random bytes.
+		@rtype: C{str}
+		"""
+		if nbytes > len(self._buffer) - self._position:
+			self._getMore(max(nbytes, self._bufferSize))
+
+		out = self._buffer[self._position:self._position + nbytes]
+		self._position += nbytes
+		return out
+
+
+
+_theRandomFactory = _RandomFactory(bufferSize=4096)
+_secureRandom = _theRandomFactory.secureRandom
+
+
 class _DictSubclass(dict):
 
 	def keys(self):
@@ -68,7 +110,7 @@ class securedict(dict):
 	def __new__(cls, x={}, **kwargs):
 		obj = dict.__new__(cls)
 		obj._inMyRepr = False
-		rand = urandom(16)
+		rand = _secureRandom(16)
 		obj._random1 = rand[:8]
 		obj._random2 = rand[8:]
 		return obj
@@ -262,3 +304,7 @@ class securedict(dict):
 			raise NotImplementedError("no viewkeys on securedict")
 
 		# viewvalues is okay
+
+
+
+__all__ = ['__version__', 'isDictUpdateBroken', 'securedict']

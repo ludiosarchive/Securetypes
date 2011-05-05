@@ -3,7 +3,7 @@ import sys
 from twisted.trial import unittest
 import UserDict
 
-from securedict import isDictUpdateBroken, securedict
+from securedict import isDictUpdateBroken, securedict, _RandomFactory
 
 
 # Copied from mypy.testhelpers
@@ -38,6 +38,97 @@ class ReallyEqualMixin(object):
 		self.assertTrue(b != a)
 		self.assertNotEqual(0, cmp(a, b))
 		self.assertNotEqual(0, cmp(b, a))
+
+
+
+class RandomFactoryTests(unittest.TestCase):
+
+	def test_smallRequests(self):
+		rf = _RandomFactory(bufferSize=4096 * 8)
+
+		r1 = rf.secureRandom(16)
+		self.assertEqual(16, len(r1))
+
+		r2 = rf.secureRandom(16)
+		self.assertEqual(16, len(r2))
+
+		# Collision probability is very low
+		self.assertNotEqual(r1, r2)
+
+		r3 = rf.secureRandom(1)
+		self.assertEqual(1, len(r3))
+
+
+	def test_zeroRandomBytes(self):
+		rf = _RandomFactory(bufferSize=4096 * 8)
+
+		r1 = rf.secureRandom(0)
+		self.assertEqual('', r1)
+
+
+	def test_largeRequests(self):
+		bufferSize = 4096 * 8
+
+		rf = _RandomFactory(bufferSize=bufferSize)
+
+		r1 = rf.secureRandom(4000)
+		self.assertEqual(4000, len(r1))
+
+		r2 = rf.secureRandom(bufferSize * 8)
+		self.assertEqual(bufferSize * 8, len(r2))
+
+		r3 = rf.secureRandom(2)
+		self.assertEqual(2, len(r3))
+
+		self.assertNotEqual(r1, r2)
+
+
+	def test_veryLargeRequests(self):
+		bufferSize = 4096 * 8
+
+		rf = _RandomFactory(bufferSize=bufferSize)
+
+		r1 = rf.secureRandom(bufferSize * 2)
+		self.assertEqual(bufferSize * 2, len(r1))
+
+		r2 = rf.secureRandom(bufferSize * 2 - 1)
+		self.assertEqual(bufferSize * 2 - 1, len(r2))
+
+		r3 = rf.secureRandom(2)
+		self.assertEqual(2, len(r3))
+
+		self.assertNotEqual(r1, r2)
+
+
+	def test_largeRequestSameAsBufferSize(self):
+		bufferSize = 4096 * 8
+
+		rf = _RandomFactory(bufferSize=bufferSize)
+
+		r1 = rf.secureRandom(bufferSize)
+		self.assertEqual(bufferSize, len(r1))
+
+		r2 = rf.secureRandom(bufferSize)
+		self.assertEqual(bufferSize, len(r2))
+
+		self.assertNotEqual(r1, r2)
+
+
+	def test_manyRequests(self):
+		self._calls = 0
+		class SyscallTrackingRandomFactory(_RandomFactory):
+			def _getMore(self2, howMuch):
+				_RandomFactory._getMore(self2, howMuch)
+				self._calls += 1
+
+		rf = SyscallTrackingRandomFactory(bufferSize=4096 * 8)
+		for i in xrange(1024 * 8):
+			rn = rf.secureRandom(16)
+			self.assertEqual(16, len(rn))
+
+		# Even though we needed random data 1024*8 times, os.urandom was
+		# only called 4 times.
+		self.assertEqual(4, self._calls)
 
 
 
