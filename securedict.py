@@ -116,10 +116,10 @@ class securedict(dict):
 		return obj
 
 
-	def update(self, __securedict_securedict_arg1={}, **kwargs):
+	def update(self, __securedict_securedict_update_arg1={}, **kwargs):
 		# Update like the documented update algorithm and like pypy, not
 		# like CPython.
-		x = __securedict_securedict_arg1
+		x = __securedict_securedict_update_arg1
 		if hasattr(x, 'keys'):
 			for k in x.keys():
 				self[k] = x[k]
