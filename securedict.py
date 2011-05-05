@@ -59,8 +59,12 @@ class _DictSubclass(dict):
 def isDictUpdateBroken():
 	"""
 	Return C{True} if the Python implementation's dict update algorithm is
-	broken. In CPython, it is broken, because it does not use .keys() for
-	subclasses of dicts.  In pypy, it isn't broken.
+	broken.  In CPython, it is broken, because it doesn't use .keys() for
+	objects that are subclasses of dict.  See <http://bugs.python.org/issue10240>.
+	In pypy, it isn't broken.
+
+	Note that the update algorithm affects both C{dict.__init__} and
+	C{dict.update}.
 	"""
 	special = _DictSubclass(a=1, b=2, c=3)
 	d = {}
