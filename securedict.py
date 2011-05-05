@@ -1,4 +1,4 @@
-__version__ = '11.5.5.1'
+__version__ = '11.5.5.2'
 
 from os import urandom
 
