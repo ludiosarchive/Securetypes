@@ -65,6 +65,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		self.assertEqual(securedict(one=1, two=2), {'one': 1, 'two': 2})
 
+		self.assertEqual(
+			securedict(x=1, y=2, z=3, k=4, v=5),
+			{'x': 1, 'y': 2, 'z': 3, 'k': 4, 'v': 5})
+
 
 	def test_constructorUsesUpdate(self):
 		s = SimpleUserDict()
