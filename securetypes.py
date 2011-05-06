@@ -54,25 +54,25 @@ _theRandomFactory = _RandomFactory(bufferSize=4096)
 _secureRandom = _theRandomFactory.secureRandom
 
 
-def _securehash(o):
-	t = type(o)
+def _securehash(obj):
+	t = type(obj)
 	if t == str:
 		h = sha1('\x01') # str or an ascii'able unicode
-		h.update(o)
+		h.update(obj)
 	elif t in (int, long):
 		h = sha1('\x00') # "number"
-		h.update(str(o))
+		h.update(str(obj))
 	elif t == unicode:
 		try:
-			ascii = o.encode('ascii')
+			ascii = obj.encode('ascii')
 			h = sha1('\x01') # str or an ascii'able unicode
 			h.update(ascii)
 		except UnicodeEncodeError:
 			h = sha1('\x02') # non-ascii'able unicode
-			h.update(o.encode('utf-8'))
+			h.update(obj.encode('utf-8'))
 	elif t == float:
 		h = sha1('\x00') # "number"
-		r = repr(o)
+		r = repr(obj)
 		if r in ("-0.0", "nan"):
 			h.update("0")
 		elif r == "inf":
