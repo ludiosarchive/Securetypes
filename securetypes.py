@@ -10,51 +10,6 @@ except ImportError:
 	from sha import sha as sha1
 
 
-class _RandomFactory(object):
-	"""
-	Factory providing a L{secureRandom} method.
-
-	This implementation buffers data from os.urandom, to avoid calling it
-	every time random data is needed.
-	"""
-	__slots__ = ('_bufferSize', '_buffer', '_position')
-
-	def __init__(self, bufferSize):
-		self._bufferSize = bufferSize
-		self._getMore(bufferSize)
-
-
-	def _getMore(self, howMuch):
-		# os.urandom is thread-safe in Python 2.4.2+, according to
-		# http://www.java2s.com/Open-Source/Python/XML/
-		# 4Suite/4Suite-XML-1.0.2/Ft/Lib/Random.py.htm
-		self._buffer = urandom(howMuch)
-		self._position = 0
-
-
-	def secureRandom(self, nbytes):
-		"""
-		Return a number of relatively secure random bytes.
-
-		@param nbytes: number of bytes to generate.
-		@type nbytes: C{int}
-
-		@return: a string of random bytes.
-		@rtype: C{str}
-		"""
-		if nbytes > len(self._buffer) - self._position:
-			self._getMore(max(nbytes, self._bufferSize))
-
-		out = self._buffer[self._position:self._position + nbytes]
-		self._position += nbytes
-		return out
-
-
-
-_theRandomFactory = _RandomFactory(bufferSize=4096)
-_secureRandom = _theRandomFactory.secureRandom
-
-
 def _securehash_hasher(obj):
 	t = type(obj)
 	if t == str:
