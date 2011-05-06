@@ -4,7 +4,7 @@ Securetypes overview
 Securetypes' `securedict` is an implementation of `dict` that protects against algorithmic
 complexity attacks.  With a normal `dict`, if the attacker can control the keys
 inserted into the dict, he can slow the server to a halt by picking keys with
-colliding `hash()`es.  `securedict.securedict` protects against this by
+colliding `hash()`es.  `securetypes.securedict` protects against this by
 surrounding the key with random data, making it (hopefully) impossible to
 predict the `hash()`.
 
