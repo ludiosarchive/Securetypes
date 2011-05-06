@@ -166,6 +166,10 @@ class SecureHashTests(unittest.TestCase):
 		self.assertNotEqual(_securehash(123L), _securehash("123L"))
 
 
+	def test_notSupportedYet(self):
+		self.assertRaises(TypeError, lambda: _securehash((1, 2, 3)))
+
+
 
 class SimpleUserDict:
 	def __init__(self):
