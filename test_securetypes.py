@@ -798,7 +798,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		d = securedict()
 
 		for n in xrange(300000):
-			collider = n * hashWrapsAt - (n - 1)
+			collider = 1 + n * (hashWrapsAt - 1)
 			self.assertTrue(hash(collider) == 1, "hash(%r) == %r" % (collider, hash(collider),))
 			d[collider] = True
 
