@@ -1,5 +1,6 @@
 __version__ = '11.5.5.3'
 
+from types import NoneType
 from os import urandom
 
 try:
@@ -89,6 +90,8 @@ def _securehash_hasher(obj):
 			h.update(rep[:-2])
 		else:
 			h.update(rep)
+	elif t == NoneType:
+		h = sha1('\x03') # NoneType
 	else:
 		raise TypeError("Don't know how to securely hash a %r object" % (t,))
 
