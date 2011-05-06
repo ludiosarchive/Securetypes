@@ -45,9 +45,10 @@ The fine print
 
 *	`securedict` is a subclass of `dict`.
 
-*	There is a major limitation: in CPython, `dict()`ing a `securedict` gives you
-	garbage.  In pypy it works, though you still should never `dict()` a
-	`securedict` because it defeats the purpose of `securedict`.
+*	In CPython, `dict()`ing a `securedict` gives you garbage (a dictionary
+	containing key wrappers instead of the keys).  In pypy it works, though
+	you still should never `dict()` a `securedict` because it defeats the
+	purpose of `securedict`.
 
 *	`.copy()` returns a `securedict`.
 
