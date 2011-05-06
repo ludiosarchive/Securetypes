@@ -35,13 +35,21 @@ For more information about algorithmic complexity attacks, see:
 The fine print
 ==============
 
+*	A `securedict` supports only these types for keys: `str`, `unicode`,
+	`int`, `long`, `float`, `bool`, and `NoneType`.  Future versions will
+	support `tuple` and any object with a `__securehash__`.
+
+*	A `securedict` is even less thread-safe than a `dict`.  Don't use the same
+	`securedict` in multiple threads.  Doing this may result in strange
+	exceptions.
+
 *	A `securedict` is `==` to a normal `dict` (if the contents are the same).
 
 *	`securedict` is a subclass of `dict`.
 
 *	There is a major limitation: in CPython, `dict()`ing a `securedict` gives you
-	garbage.  In pypy it works, though you still should not do it because
-	it defeats the purpose of `securedict`.
+	garbage.  In pypy it works, though you still should never `dict()` a
+	`securedict` because it defeats the purpose of `securedict`.
 
 *	`.copy()` returns a `securedict`.
 
@@ -55,6 +63,10 @@ The fine print
 
 *	In Python 2.7+, calling `.viewitems()` or `.viewkeys()` raises
 	`NotImplementedError`, while `.viewvalues()` works as usual.
+
+*	`sys.setdefaultencoding` may affect a `securedict` differently than it
+	affects `dict`.  (No one should ever use `setdefaultencoding`, but pygtk
+	does.)
 
 Again: *never* `dict()` a `securedict`.
 

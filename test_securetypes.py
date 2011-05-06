@@ -363,6 +363,8 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		self.assertRaises(TypeError, d.__getitem__)
 
+
+	def test_getitem_bad_eq_hash(self):
 		class BadEq(object):
 			def __eq__(self, other):
 				raise Exc()
@@ -387,6 +389,8 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		d[x] = 42
 		x.fail = True
 		self.assertRaises(Exc, d.__getitem__, x)
+
+	test_getitem_bad_eq_hash.todo = "securedict can only use built-ins as keys"
 
 
 	def test_delitem(self):
@@ -605,6 +609,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertEqual(len(d['key']), 2)
 		self.assertRaises(TypeError, d.setdefault)
 
+
+	def test_setdefault_bad_hash(self):
+		d = securedict()
+
 		class Exc(Exception): pass
 
 		class BadHash(object):
@@ -619,6 +627,8 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		d[x] = 42
 		x.fail = True
 		self.assertRaises(Exc, d.setdefault, x, [])
+
+	test_setdefault_bad_hash.todo = "securedict can only use built-ins as keys"
 
 
 	def test_popitem(self):
@@ -648,7 +658,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		d = securedict()
 		self.assertRaises(KeyError, d.popitem)
 
-	test_popitem.todo = 'What in the world is this testing?'
+	test_popitem.skip = "This test now passes, but it's probably just a fluke."
 
 
 	def test_pop(self):
@@ -676,6 +686,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		self.assertRaises(TypeError, d.pop)
 
+
+	def test_pop_bad_hash(self):
+		d = securedict()
+
 		class Exc(Exception): pass
 
 		class BadHash(object):
@@ -690,6 +704,8 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		d[x] = 42
 		x.fail = True
 		self.assertRaises(Exc, d.pop, x)
+
+	test_pop_bad_hash.todo = "securedict can only use built-ins as keys"
 
 
 	def test_mutatingiteration(self):
@@ -814,6 +830,8 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		ex = self.assertRaises(KeyError, get, d, (1,))
 		self.assertEqual(ex.args, ((1,),))
 
+	test_tuple_keyerror.todo = "securedict doesn't support tuple keys yet"
+
 
 	def test_bad_key(self):
 		# Dictionary lookups should fail if __cmp__() raises an exception.
@@ -847,6 +865,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 	if sys.version_info < (2, 5):
 		test_bad_key.skip = "Python < 2.5 doesn't support this behavior"
+	test_bad_key.todo = "securedict can only use built-ins as keys"
 
 
 	def test_viewmethods(self):
@@ -869,7 +888,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		d = securedict()
 
-		for n in xrange(300000):
+		for n in xrange(100000):
 			collider = 1 + n * (hashWrapsAt - 1)
 			# In Python < 2.6, big longs sometimes hash to 0 instead
 			# of 1 in this case.  This doesn't affect the test, because we
@@ -880,5 +899,3 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		# If the test doesn't hang for a long time, it passed.  We don't check
 		# test duration because it will flake on someone.
-
-	test_protectsAgainstCollisions.skip = "Doesn't work yet"

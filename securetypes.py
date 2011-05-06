@@ -129,51 +129,72 @@ def is_dict_update_broken():
 	return d != {'a': 1}
 
 
-# If you see ("_securedictmarker", <object object at 0x>) show up in your dict,
-# you probably dict()ed a securedict in CPython.  Don't dict() securedicts
-# for security reasons, but especially not in CPython, because CPython's dict
-# update algorithm is broken: http://bugs.python.org/issue10240
-_securedictmarker = ("_securedictmarker", object())
+# This value should never be sent or displayed to *anyone*
+_securetypes_SECRET = urandom(160/8)
+
+# If you see "_securedictmarker" show up in your dict, you probably dict()ed a
+# securedict in CPython.  Don't dict() securedicts for security reasons, but
+# especially not in CPython, because CPython's dict update algorithm is broken:
+# http://bugs.python.org/issue10240
+_securedictmarker = "_securedictmarker"
 
 _NO_ARG = object()
 
 class securedict(dict):
 	"""
-	A dictionary that is relatively safe from algorithmic complexity attacks.
-	To be safe from such attacks, it modifies the keys, so that they have
-	unpredictable C{hash()}es.
+	A `dict` that is safe against algorithmic complexity attacks.  Internally,
+	for each key, it stores a key wrapper like this:
+
+		("_securedictmarker", sha1(key + secret), key)
+
+	`sha1` protects against collisions, and `secret` makes the `hash()` of the
+	wrapper unknowable to adversaries.
 
 	The fine print:
 
-	A securedict is C{==} to a normal dict (if the contents are the same).
+	*	A `securedict` supports only these types for keys: `str`, `unicode`,
+		`int`, `long`, `float`, `bool`, and `NoneType`.  Future versions will
+		support `tuple` and any object with a `__securehash__`.
 
-	securedict is a subclass of dict.
+	*	A `securedict` is even less thread-safe than a `dict`.  Don't use the same
+		`securedict` in multiple threads.  Doing this may result in strange
+		exceptions.
 
-	There is a major limitation: in CPython, dict()ing a securedict gives you
-	garbage.  In pypy it works, though you still should not do it because
-	it defeats the purpose of securedict.
+	*	A `securedict` is `==` to a normal `dict` (if the contents are the same).
 
-	C{.copy()} returns a L{securedict}.
+	*	`securedict` is a subclass of `dict`.
 
-	C{.popitem()} may pop a different item than an equal dict would; see the
-	unit tests.
+	*	There is a major limitation: in CPython, `dict()`ing a `securedict` gives you
+		garbage.  In pypy it works, though you still should never `dict()` a
+		`securedict` because it defeats the purpose of `securedict`.
 
-	A securedict's < and > compares the securedict's id instead of using
-	Python's complicated algorithm.  This may change in the future to work
-	like Python's algorithm (see CPython dictobject.c:dict_compare).  Don't
-	rely on the current "compares id" behavior.
+	*	`.copy()` returns a `securedict`.
 
-	In Python 2.7+, calling C{.viewitems()} or C{.viewkeys()} raises
-	L{NotImplementedError}, while C{.viewvalues()} works as usual.
+	*	`.popitem()` may pop a different item than an equal dict would; see the
+		unit tests.
+
+	*	A securedict's `<` and `>` compares the `securedict`'s id instead of using
+		Python's complicated algorithm.  This may change in the future to work
+		like Python's algorithm (see CPython `dictobject.c:dict_compare`).  Don't
+		rely on the current "compares id" behavior.
+
+	*	In Python 2.7+, calling `.viewitems()` or `.viewkeys()` raises
+		`NotImplementedError`, while `.viewvalues()` works as usual.
+
+	*	`sys.setdefaultencoding` may affect a `securedict` differently than it
+		affects `dict`.  (No one should ever use `setdefaultencoding`, but pygtk
+		does.)
+
+	Additional security considerations:
+
+	Don't use `nan`s as dictionary keys.  `securedict` can't help you here.
+	All `nan`s have the same `hash()` and are not equal to any object.
 	"""
-	__slots__ = ('_random1', '_random2', '_inMyRepr')
+	__slots__ = ('_inMyRepr',)
 
 	def __new__(cls, *args, **kwargs):
 		obj = dict.__new__(cls)
 		obj._inMyRepr = False
-		rand = _secureRandom(16)
-		obj._random1 = rand[:8]
-		obj._random2 = rand[8:]
 		return obj
 
 
@@ -200,10 +221,16 @@ class securedict(dict):
 	__init__ = update
 
 
+	def _getSecureHash(self, key):
+		h = _securehash_hasher(key)
+		h.update(_securetypes_SECRET)
+		return h.digest()
+
+
 	def __getitem__(self, key):
 		if key in self:
 			return dict.__getitem__(self,
-				(_securedictmarker, self._random1, key, self._random2))
+				(_securedictmarker, self._getSecureHash(key), key))
 		else:
 			# "__missing__ must be a method; it cannot be an instance variable."
 			# See test_missing.
@@ -216,20 +243,20 @@ class securedict(dict):
 
 	def __setitem__(self, key, value):
 		return dict.__setitem__(self,
-			(_securedictmarker, self._random1, key, self._random2), value)
+			(_securedictmarker, self._getSecureHash(key), key), value)
 
 
 	def __delitem__(self, key):
 		try:
 			return dict.__delitem__(self,
-				(_securedictmarker, self._random1, key, self._random2))
+				(_securedictmarker, self._getSecureHash(key), key))
 		except KeyError:
 			raise KeyError(key)
 
 
 	def __contains__(self, key):
 		return dict.__contains__(self,
-			(_securedictmarker, self._random1, key, self._random2))
+			(_securedictmarker, self._getSecureHash(key), key))
 	has_key = __contains__
 
 
@@ -320,7 +347,7 @@ class securedict(dict):
 
 	def get(self, key, default=None):
 		return dict.get(self,
-			(_securedictmarker, self._random1, key, self._random2), default)
+			(_securedictmarker, self._getSecureHash(key), key), default)
 
 
 	def pop(self, key, d=_NO_ARG):
