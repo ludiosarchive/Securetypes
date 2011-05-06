@@ -159,6 +159,8 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		self.assertEqual(securedict(one=1, two=2), {'one': 1, 'two': 2})
 
+		# Test for some regressions caused by having a variable name in
+		# the arglist of __new__ and update.
 		self.assertEqual(
 			securedict(x=1, y=2, z=3, k=4, v=5),
 			{'x': 1, 'y': 2, 'z': 3, 'k': 4, 'v': 5})
@@ -438,6 +440,12 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		d = securedict()
 		d.update(special)
 		self.assertEqual(d, dict(a=1))
+
+
+	def test_updateTooManyArgs(self):
+		d = securedict()
+		exc = self.assertRaises(TypeError, lambda: d.update({}, {}))
+		self.assertEqual("update expected at most 1 arguments, got 2", str(exc))
 
 
 	def test_dictASecureDict(self):

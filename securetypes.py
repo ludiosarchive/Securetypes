@@ -114,7 +114,7 @@ class securedict(dict):
 	"""
 	__slots__ = ('_random1', '_random2', '_inMyRepr')
 
-	def __new__(cls, __securedict_securedict_ignored=None, **kwargs):
+	def __new__(cls, *args, **kwargs):
 		obj = dict.__new__(cls)
 		obj._inMyRepr = False
 		rand = _secureRandom(16)
@@ -123,16 +123,22 @@ class securedict(dict):
 		return obj
 
 
-	def update(self, __securedict_securedict_update_arg1={}, **kwargs):
-		# Update like the documented update algorithm and like pypy, not
-		# like CPython.
-		x = __securedict_securedict_update_arg1
-		if hasattr(x, 'keys'):
-			for k in x.keys():
-				self[k] = x[k]
-		else:
-			for k, v in x:
-				self[k] = v
+	def update(self, *args, **kwargs):
+		# We use *args instead of a variable `x` to avoid blowing up if
+		# we get a key named "x".
+		if len(args) == 1:
+			x = args[0]
+			# Update like the documented update algorithm and like pypy,
+			# not like CPython.
+			if hasattr(x, 'keys'):
+				for k in x.keys():
+					self[k] = x[k]
+			else:
+				for k, v in x:
+					self[k] = v
+		elif len(args) > 1:
+			raise TypeError("update expected at most 1 arguments, "
+				"got %d" % (len(args),))
 
 		for k, v in kwargs.iteritems():
 			self[k] = v
