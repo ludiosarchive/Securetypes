@@ -9,8 +9,9 @@ by picking keys with colliding `hash()`es.  To protect against this, internally
 
 `("_securedictmarker", sha1(key + secret), key)`
 
-`sha1` protects against collisions, and `secret` makes the `hash()` of the
-wrapper unknowable to adversaries.
+`sha1` protects against collisions, and `secret` prevents adversaries from
+controlling the `hash()` of the key wrapper.  (Without `secret`, you could just
+pre-compute `hash(sha1(key))` for 2**32 keys.)
 
 `securedict` implements most of the `dict` API; you can use it much like a `dict`:
 
