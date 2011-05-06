@@ -38,7 +38,7 @@ The fine print
 	support `tuple` and any object with a `__securehash__`.
 
 *	A `securedict` is even less thread-safe than a `dict`.  Don't use the same
-	`securedict` in multiple threads.  Doing this may result in strange
+	`securedict` object in multiple threads.  Doing this may result in strange
 	exceptions.
 
 *	A `securedict` is `==` to a normal `dict` (if the contents are the same).
