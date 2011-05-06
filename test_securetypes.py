@@ -646,6 +646,14 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertRaises(Exc, repr, d)
 
 
+	def test_str(self):
+		"""
+		str()ing a securedict should return the same thing repr() does
+		"""
+		d = securedict({1: 2})
+		self.assertEqual(str(d), 'securedict({1: 2})')
+
+
 	def test_repr_like_dict(self):
 		d = securedict()
 		d[1] = 2
