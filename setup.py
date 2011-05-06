@@ -14,7 +14,7 @@ setup(
 	author_email="ivan@ludios.org",
 	classifiers=[
 		'Programming Language :: Python :: 2',
-		'Development Status :: 4 - Beta',
+		'Development Status :: 3 - Alpha',
 		'Operating System :: OS Independent',
 		'Intended Audience :: Developers',
 		'License :: OSI Approved :: MIT License',
