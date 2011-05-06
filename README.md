@@ -60,6 +60,14 @@ Again: *never* `dict()` a `securedict`.
 
 
 
+Additional security considerations
+==================================
+
+Don't use `nan`s as dictionary keys.  `securedict` can't help you here.
+All `nan`s have the same `hash()` and are not equal to any object.
+
+
+
 Requirements
 ============
 
