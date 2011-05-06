@@ -865,7 +865,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 		for n in xrange(300000):
 			collider = 1 + n * (hashWrapsAt - 1)
-			self.assertTrue(hash(collider) == 1,
+			# In Python < 2.6, big longs sometimes hash to 0 instead
+			# of 1 in this case.  This doesn't affect the test, because we
+			# still gets tons of colliding keys.
+			self.assertTrue(hash(collider) in (0, 1),
 				"hash(%r) == %r" % (collider, hash(collider),))
 			d[collider] = True
 
