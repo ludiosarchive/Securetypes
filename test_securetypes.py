@@ -1,7 +1,8 @@
 import sys
-
-from twisted.trial import unittest
 import UserDict
+
+from twisted.python import log
+from twisted.trial import unittest
 
 from securetypes import isDictUpdateBroken, securedict, _RandomFactory
 
@@ -785,3 +786,21 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 			self.assertRaises((AttributeError, TypeError), lambda: securedict().viewitems())
 			self.assertRaises((AttributeError, TypeError), lambda: securedict().viewkeys())
 			self.assertRaises((AttributeError, TypeError), lambda: securedict().viewvalues())
+
+
+	def test_protectsAgainstCollisions(self):
+		log.msg("If this test hangs, securedict is broken")
+
+		hashWrapsAt = (sys.maxint + 1) * 2
+		if hashWrapsAt not in (2**32, 2**64):
+			log.msg("Warning: hashWrapsAt is an unusual %r" % (hashWrapsAt,))
+
+		d = securedict()
+
+		for n in xrange(300000):
+			collider = n * hashWrapsAt - (n - 1)
+			self.assertTrue(hash(collider) == 1, "hash(%r) == %r" % (collider, hash(collider),))
+			d[collider] = True
+
+		# If the test doesn't hang for a long time, it passed.  We don't check
+		# test duration because it will flake on someone.
