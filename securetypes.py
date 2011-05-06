@@ -2,6 +2,12 @@ __version__ = '11.5.5.3'
 
 from os import urandom
 
+try:
+	from hashlib import sha1
+except ImportError:
+	# Python < 2.5 doesn't have hashlib
+	from sha import sha as sha1
+
 
 class _RandomFactory(object):
 	"""
@@ -46,6 +52,28 @@ class _RandomFactory(object):
 
 _theRandomFactory = _RandomFactory(bufferSize=4096)
 _secureRandom = _theRandomFactory.secureRandom
+
+
+def _securehash(o):
+	t = type(o)
+	if t in (int, long):
+		h = sha1('\x00') # "number"
+		h.update(str(o))
+	elif t == str:
+		h = sha1('\x01') # str or an ascii'able unicode
+		h.update(o)
+	elif t == unicode:
+		try:
+			ascii = o.encode('ascii')
+			h = sha1('\x01') # str or an ascii'able unicode
+			h.update(ascii)
+		except UnicodeEncodeError:
+			h = sha1('\x02') # non-ascii'able unicode
+			h.update(o.encode('utf-8'))
+	else:
+		raise TypeError("Don't know how to securely hash a %r object" % (t,))
+
+	return h.digest()
 
 
 class _DictSubclass(dict):

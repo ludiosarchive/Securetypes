@@ -4,7 +4,7 @@ import UserDict
 from twisted.python import log
 from twisted.trial import unittest
 
-from securetypes import is_dict_update_broken, securedict, _RandomFactory
+from securetypes import _securehash, is_dict_update_broken, securedict, _RandomFactory
 
 
 # Copied from mypy.testhelpers
@@ -130,6 +130,40 @@ class RandomFactoryTests(unittest.TestCase):
 		# Even though we needed random data 1024*8 times, os.urandom was
 		# only called 4 times.
 		self.assertEqual(4, self._calls)
+
+
+
+class SecureHashTests(unittest.TestCase):
+	"""
+	Tests for L{securetypes._securehash}
+	"""
+	def test_strUnicode(self):
+		self.assertNotEqual(_securehash("abc"), _securehash("123"))
+		self.assertNotEqual(_securehash(""), _securehash("abc"))
+
+		self.assertNotEqual(_securehash(u"abc"), _securehash(u"123"))
+		self.assertNotEqual(_securehash(u""), _securehash(u"abc"))
+
+		self.assertEqual(_securehash("abc"), _securehash(u"abc"))
+		self.assertEqual(_securehash(""), _securehash(u""))
+		self.assertNotEqual(_securehash("\xff"), _securehash(u"\xff"))
+
+		# Test that bad implementation ideas weren't implemented
+		self.assertNotEqual(_securehash("\xec\xb3\x8c"), _securehash(u"\ucccc"))
+		self.assertNotEqual(_securehash("\xcc\x00"), _securehash(u"\u00cc"))
+		self.assertNotEqual(_securehash("\xcc\x00\x00\x00"), _securehash(u"\u00cc"))
+
+
+	def test_intLong(self):
+		self.assertEqual(_securehash(123), _securehash(123L))
+
+		self.assertNotEqual(_securehash(0), _securehash(1))
+		self.assertNotEqual(_securehash(-1), _securehash(0))
+
+		# Test that bad implementation ideas weren't implemented
+		self.assertNotEqual(_securehash(123), _securehash("123"))
+		self.assertNotEqual(_securehash(123L), _securehash("123"))
+		self.assertNotEqual(_securehash(123L), _securehash("123L"))
 
 
 
