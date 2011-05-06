@@ -18,6 +18,9 @@ class _RandomFactory(object):
 
 
 	def _getMore(self, howMuch):
+		# os.urandom is thread-safe in Python 2.4.2+, according to
+		# http://www.java2s.com/Open-Source/Python/XML/
+		# 4Suite/4Suite-XML-1.0.2/Ft/Lib/Random.py.htm
 		self._buffer = urandom(howMuch)
 		self._position = 0
 
