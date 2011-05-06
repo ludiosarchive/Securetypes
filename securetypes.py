@@ -112,23 +112,24 @@ class securedict(dict):
 		support `tuple` and any object with a `__securehash__`.
 
 	*	A `securedict` is even less thread-safe than a `dict`.  Don't use the same
-		`securedict` in multiple threads.  Doing this may result in strange
+		`securedict` object in multiple threads.  Doing this may result in strange
 		exceptions.
 
 	*	A `securedict` is `==` to a normal `dict` (if the contents are the same).
 
 	*	`securedict` is a subclass of `dict`.
 
-	*	There is a major limitation: in CPython, `dict()`ing a `securedict` gives you
-		garbage.  In pypy it works, though you still should never `dict()` a
-		`securedict` because it defeats the purpose of `securedict`.
+	*	In CPython, `dict()`ing a `securedict` gives you garbage (a dictionary
+		containing key wrappers instead of the keys).  In pypy it works, though
+		you still should never `dict()` a `securedict` because it defeats the
+		purpose of `securedict`.
 
 	*	`.copy()` returns a `securedict`.
 
 	*	`.popitem()` may pop a different item than an equal dict would; see the
 		unit tests.
 
-	*	A securedict's `<` and `>` compares the `securedict`'s id instead of using
+	*	A `securedict`'s `<` and `>` compares the `securedict`'s id instead of using
 		Python's complicated algorithm.  This may change in the future to work
 		like Python's algorithm (see CPython `dictobject.c:dict_compare`).  Don't
 		rely on the current "compares id" behavior.

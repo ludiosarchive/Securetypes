@@ -1,14 +1,18 @@
 Securetypes overview
 ====================
 
-Securetypes' `securedict` is an implementation of `dict` that protects against algorithmic
-complexity attacks.  With a normal `dict`, if the attacker can control the keys
-inserted into the dict, he can slow the server to a halt by picking keys with
-colliding `hash()`es.  `securetypes.securedict` protects against this by
-surrounding the key with random data, making it (hopefully) impossible to
-predict the `hash()`.
+Securetypes' `securedict` is an implementation of `dict` that protects against
+algorithmic complexity attacks.  With a normal `dict`, if an adversary can
+control the keys inserted into the `dict`, he can slow the program to a halt
+by picking keys with colliding `hash()`es.  To protect against this, internally
+`securedict` stores a key wrapper for each key:
 
-You can use `securedict` very much like a `dict`:
+`("_securedictmarker", sha1(key + secret), key)`
+
+`sha1` protects against collisions, and `secret` makes the `hash()` of the
+wrapper unknowable to adversaries.
+
+`securedict` implements most of the `dict` API; you can use it much like a `dict`:
 
 ```
 from securetypes import securedict
@@ -16,7 +20,7 @@ from securetypes import securedict
 d = securedict(x=3)
 d['y'] = 4
 
-print d # prints: securedict({'y': 4, 'x': 3})
+print d # prints securedict({'y': 4, 'x': 3})
 
 # Special features:
 print d.repr_like_dict() # prints {'y': 4, 'x': 3}
