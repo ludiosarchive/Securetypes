@@ -7,8 +7,8 @@ import securetypes
 setup(
 	name='Securetypes',
 	version=securetypes.__version__,
-	description="Implementation of dict that protects against " +
-		"algorithmic complexity attacks",
+	description="securedict implementation, a dict that uses secure " +
+		"hashing to stop algorithmic complexity attacks",
 	url="https://github.com/ludios/Securetypes",
 	author="Ivan Kozik",
 	author_email="ivan@ludios.org",
