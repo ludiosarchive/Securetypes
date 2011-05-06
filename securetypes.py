@@ -56,12 +56,12 @@ _secureRandom = _theRandomFactory.secureRandom
 
 def _securehash(o):
 	t = type(o)
-	if t in (int, long):
-		h = sha1('\x00') # "number"
-		h.update(str(o))
-	elif t == str:
+	if t == str:
 		h = sha1('\x01') # str or an ascii'able unicode
 		h.update(o)
+	elif t in (int, long):
+		h = sha1('\x00') # "number"
+		h.update(str(o))
 	elif t == unicode:
 		try:
 			ascii = o.encode('ascii')
