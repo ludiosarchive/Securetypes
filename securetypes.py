@@ -1,4 +1,4 @@
-__version__ = '11.5.5.3'
+__version__ = '11.5.6'
 
 from types import NoneType
 from os import urandom
