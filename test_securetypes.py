@@ -4,7 +4,7 @@ import UserDict
 from twisted.python import log
 from twisted.trial import unittest
 
-from securetypes import isDictUpdateBroken, securedict, _RandomFactory
+from securetypes import is_dict_update_broken, securedict, _RandomFactory
 
 
 # Copied from mypy.testhelpers
@@ -450,7 +450,7 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 
 	def test_dictASecureDict(self):
 		dictedSecureDict = dict(securedict(a=1, b=2))
-		if not isDictUpdateBroken():
+		if not is_dict_update_broken():
 			self.assertEqual(dictedSecureDict, dict(a=1, b=2))
 		else:
 			self.assertNotEqual(dictedSecureDict, dict(a=1, b=2))

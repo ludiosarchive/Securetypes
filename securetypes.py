@@ -59,7 +59,7 @@ class _DictSubclass(dict):
 
 
 
-def isDictUpdateBroken():
+def is_dict_update_broken():
 	"""
 	Return C{True} if the Python implementation's dict update algorithm is
 	broken.  In CPython, it is broken, because it doesn't use .keys() for
@@ -320,4 +320,4 @@ class securedict(dict):
 
 
 
-__all__ = ['__version__', 'isDictUpdateBroken', 'securedict']
+__all__ = ['__version__', 'is_dict_update_broken', 'securedict']
