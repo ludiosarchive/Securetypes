@@ -91,6 +91,13 @@ Install Twisted, then run `trial test_securetypes`
 
 
 
+Bugs
+====
+
+https://github.com/ludios/Securetypes/issues
+
+
+
 Code style notes
 ================
 
