@@ -70,6 +70,12 @@ def _securehash(obj):
 		except UnicodeEncodeError:
 			h = sha1('\x02') # non-ascii'able unicode
 			h.update(obj.encode('utf-8'))
+	elif t == bool:
+		h = sha1('\x00') # "number"
+		if obj:
+			h.update("1")
+		else:
+			h.update("0")
 	elif t == float:
 		h = sha1('\x00') # "number"
 		rep = repr(obj)

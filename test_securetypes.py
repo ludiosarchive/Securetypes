@@ -171,6 +171,13 @@ class SecureHashTests(unittest.TestCase):
 		self.assertNotEqual(_securehash(123L), _securehash("123L"))
 
 
+	def test_boolInt(self):
+		self.assertEqual(_securehash(True), _securehash(1))
+		self.assertEqual(_securehash(False), _securehash(0))
+		self.assertEqual(_securehash(False), _securehash(0.0))
+		self.assertNotEqual(_securehash(True), _securehash(False))
+
+
 	def test_problematicFloats(self):
 		self.assertEqual(_securehash(0.0), _securehash(-0.0))
 		self.assertEqual(_securehash(0), _securehash(float('nan')))
