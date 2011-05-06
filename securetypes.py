@@ -72,17 +72,17 @@ def _securehash(obj):
 			h.update(obj.encode('utf-8'))
 	elif t == float:
 		h = sha1('\x00') # "number"
-		r = repr(obj)
-		if r in ("-0.0", "nan"):
+		rep = repr(obj)
+		if rep in ("-0.0", "nan"):
 			h.update("0")
-		elif r == "inf":
+		elif rep == "inf":
 			h.update("314159")
-		elif r == "-inf":
+		elif rep == "-inf":
 			h.update("-271828")
-		elif r.endswith(".0"):
-			h.update(r[:-2])
+		elif rep.endswith(".0"):
+			h.update(rep[:-2])
 		else:
-			h.update(r)
+			h.update(rep)
 	else:
 		raise TypeError("Don't know how to securely hash a %r object" % (t,))
 
