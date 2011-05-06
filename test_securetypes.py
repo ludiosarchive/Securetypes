@@ -3,7 +3,7 @@ import sys
 from twisted.trial import unittest
 import UserDict
 
-from securedict import isDictUpdateBroken, securedict, _RandomFactory
+from securetypes import isDictUpdateBroken, securedict, _RandomFactory
 
 
 # Copied from mypy.testhelpers

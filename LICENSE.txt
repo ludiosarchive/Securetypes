@@ -1,5 +1,5 @@
-Securedict license
-==================
+Securetypes license
+===================
 
 Copyright (c) 2010-2011 Ivan Kozik
 

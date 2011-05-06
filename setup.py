@@ -2,14 +2,14 @@
 
 from distutils.core import setup
 
-import securedict
+import securetypes
 
 setup(
-	name='Securedict',
-	version=securedict.__version__,
+	name='Securetypes',
+	version=securetypes.__version__,
 	description="Implementation of dict that protects against " +
 		"algorithmic complexity attacks",
-	url="https://github.com/ludios/Securedict",
+	url="https://github.com/ludios/Securetypes",
 	author="Ivan Kozik",
 	author_email="ivan@ludios.org",
 	classifiers=[
@@ -19,5 +19,5 @@ setup(
 		'Intended Audience :: Developers',
 		'License :: OSI Approved :: MIT License',
 	],
-	py_modules=['securedict', 'test_securedict'],
+	py_modules=['securetypes', 'test_securetypes'],
 )

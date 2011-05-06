@@ -1,7 +1,7 @@
-Securedict overview
-===================
+Securetypes overview
+====================
 
-Securedict is an implementation of `dict` that protects against algorithmic
+Securetypes' `securedict` is an implementation of `dict` that protects against algorithmic
 complexity attacks.  With a normal `dict`, if the attacker can control the keys
 inserted into the dict, he can slow the server to a halt by picking keys with
 colliding `hash()`es.  `securedict.securedict` protects against this by
@@ -11,7 +11,7 @@ predict the `hash()`.
 You can use `securedict` very much like a `dict`:
 
 ```
-from securedict import securedict
+from securetypes import securedict
 
 d = securedict(x=3)
 d['y'] = 4
@@ -33,7 +33,7 @@ For more information about algorithmic complexity attacks, see:
 The fine print
 ==============
 
-*	A securedict is `==` to a normal dict (if the contents are the same).
+*	A `securedict` is `==` to a normal `dict` (if the contents are the same).
 
 *	`securedict` is a subclass of `dict`.
 
@@ -70,14 +70,14 @@ Installation
 
 `python setup.py install`
 
-This installs the modules `securedict` and `test_securedict`.
+This installs the modules `securetypes` and `test_securetypes`.
 
 
 
 Running the tests
 =================
 
-Install Twisted, then run `trial test_securedict`
+Install Twisted, then run `trial test_securetypes`
 
 
 
