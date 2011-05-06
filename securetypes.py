@@ -54,7 +54,7 @@ _theRandomFactory = _RandomFactory(bufferSize=4096)
 _secureRandom = _theRandomFactory.secureRandom
 
 
-def _securehash(obj):
+def _securehash_hasher(obj):
 	t = type(obj)
 	if t == str:
 		h = sha1('\x01') # str or an ascii'able unicode
@@ -92,7 +92,11 @@ def _securehash(obj):
 	else:
 		raise TypeError("Don't know how to securely hash a %r object" % (t,))
 
-	return h.digest()
+	return h
+
+
+def _securehash(obj):
+	return _securehash_hasher(obj).digest()
 
 
 class _DictSubclass(dict):
