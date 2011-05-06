@@ -646,10 +646,10 @@ class SecureDictTest(unittest.TestCase, ReallyEqualMixin):
 		self.assertRaises(Exc, repr, d)
 
 
-	def test_reprLikeDict(self):
+	def test_repr_like_dict(self):
 		d = securedict()
 		d[1] = 2
-		self.assertEqual(d.reprLikeDict(), '{1: 2}')
+		self.assertEqual(d.repr_like_dict(), '{1: 2}')
 
 
 	def test_reprOtherRecursions(self):

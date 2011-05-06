@@ -296,7 +296,7 @@ class securedict(dict):
 		return self._repr(True)
 
 
-	def reprLikeDict(self):
+	def repr_like_dict(self):
 		return self._repr(False)
 
 
