@@ -55,7 +55,7 @@ The fine print
 *	`.popitem()` may pop a different item than an equal dict would; see the
 	unit tests.
 
-*	A securedict's `<` and `>` compares the `securedict`'s id instead of using
+*	A `securedict`'s `<` and `>` compares the `securedict`'s id instead of using
 	Python's complicated algorithm.  This may change in the future to work
 	like Python's algorithm (see CPython `dictobject.c:dict_compare`).  Don't
 	rely on the current "compares id" behavior.
