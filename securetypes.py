@@ -70,6 +70,19 @@ def _securehash(o):
 		except UnicodeEncodeError:
 			h = sha1('\x02') # non-ascii'able unicode
 			h.update(o.encode('utf-8'))
+	elif t == float:
+		h = sha1('\x00') # "number"
+		r = repr(o)
+		if r in ("-0.0", "nan"):
+			h.update("0")
+		elif r == "inf":
+			h.update("314159")
+		elif r == "-inf":
+			h.update("-271828")
+		elif r.endswith(".0"):
+			h.update(r[:-2])
+		else:
+			h.update(r)
 	else:
 		raise TypeError("Don't know how to securely hash a %r object" % (t,))
 

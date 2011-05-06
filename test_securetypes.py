@@ -156,7 +156,12 @@ class SecureHashTests(unittest.TestCase):
 
 	def test_intLong(self):
 		self.assertEqual(_securehash(123), _securehash(123L))
+		self.assertEqual(_securehash(123), _securehash(123))
+		self.assertEqual(_securehash(5), _securehash(5.0))
+		self.assertEqual(_securehash(5L), _securehash(5.0))
 
+		self.assertNotEqual(_securehash(5.0), _securehash(5.4))
+		self.assertNotEqual(_securehash(5.0), _securehash(5.0000000000001))
 		self.assertNotEqual(_securehash(0), _securehash(1))
 		self.assertNotEqual(_securehash(-1), _securehash(0))
 
@@ -164,6 +169,14 @@ class SecureHashTests(unittest.TestCase):
 		self.assertNotEqual(_securehash(123), _securehash("123"))
 		self.assertNotEqual(_securehash(123L), _securehash("123"))
 		self.assertNotEqual(_securehash(123L), _securehash("123L"))
+
+
+	def test_problematicFloats(self):
+		self.assertEqual(_securehash(0.0), _securehash(-0.0))
+		self.assertEqual(_securehash(0), _securehash(float('nan')))
+
+		self.assertEqual(_securehash(314159), _securehash(float('inf')))
+		self.assertEqual(_securehash(-271828), _securehash(float('-inf')))
 
 
 	def test_notSupportedYet(self):
