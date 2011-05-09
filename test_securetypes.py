@@ -7,7 +7,6 @@ from twisted.trial import unittest
 from securetypes import _securehash, is_dict_update_broken, securedict
 
 
-# Copied from mypy.testhelpers
 class ReallyEqualMixin(object):
 	"""
 	A mixin for your L{unittest.TestCase}s to better test object equality
