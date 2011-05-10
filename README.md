@@ -98,6 +98,11 @@ Installation
 
 This installs the modules `securetypes` and `test_securetypes`.
 
+Securetypes is also available on PyPI <http://pypi.python.org/pypi/Securetypes>
+and you can install it with pip:
+
+`pip install Securetypes`
+
 
 
 Running the tests
