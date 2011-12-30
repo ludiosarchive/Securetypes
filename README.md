@@ -4,8 +4,23 @@ Securetypes overview
 Securetypes' `securedict` is an implementation of `dict` that protects against
 algorithmic complexity attacks.  With a normal `dict`, if an adversary can
 control the keys inserted into the `dict`, he can slow the program to a halt
-by picking keys with colliding `hash()`es.  To protect against this, internally
-`securedict` stores a key wrapper for each key:
+by picking keys with colliding `hash()`es.  Here are some sample colliding
+`hash()`es:
+
+```
+>>> hash(2**64), hash(2*2**64-1), hash(3*2**64-2), hash(4*2**64-3)
+(1, 1, 1, 1)
+```
+
+```
+>>> hash("\x00"), hash("\x00\x03"), hash("\x00\x00\x02"), hash("\x00\x00\x00\x05")
+(1, 1, 1, 1)
+```
+
+Better string-hash collisions can be found by analyzing Python's hash function.
+
+To protect against algorithmic complexity attacks, internally `securedict`
+stores a key wrapper for each key:
 
 `("_securedictmarker", sha1(key + secret), key)`
 
@@ -32,6 +47,8 @@ For more information about algorithmic complexity attacks, see:
 *	http://www.cs.rice.edu/~scrosby/hash/CrosbyWallach_UsenixSec2003/
 
 *	http://mail.python.org/pipermail/python-dev/2003-May/035874.html
+
+*	http://mail.python.org/pipermail/python-dev/2011-December/115116.html
 
 
 
