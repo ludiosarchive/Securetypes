@@ -52,27 +52,6 @@ For more information about algorithmic complexity attacks, see:
 
 
 
-Using securedict with json/simplejson
-=====================================
-
-`securedict` is very useful when decoding JSON objects, because the objects
-could contain many `hash()`-colliding keys.  You can tell json/simplejson
-to create `securedict`s instead of `dict`s:
-
-```
-try:
-	import simplejson as json
-except ImportError:
-	import json
-from securetypes import securedict
-
-dec = json.decoder.JSONDecoder(object_pairs_hook=securedict)
-print dec.decode('{"b": ["bee", {}]}')
-# prints securedict({'b': ['bee', securedict({})]})
-```
-
-
-
 The fine print
 ==============
 
@@ -147,6 +126,27 @@ Running the tests
 =================
 
 Install Twisted, then run `trial test_securetypes`
+
+
+
+Using securedict with json/simplejson
+=====================================
+
+`securedict` is very useful when decoding JSON objects, because the objects
+could contain many `hash()`-colliding keys.  You can tell json/simplejson
+to create `securedict`s instead of `dict`s:
+
+```
+try:
+	import simplejson as json
+except ImportError:
+	import json
+from securetypes import securedict
+
+dec = json.decoder.JSONDecoder(object_pairs_hook=securedict)
+print dec.decode('{"b": ["bee", {}]}')
+# prints securedict({'b': ['bee', securedict({})]})
+```
 
 
 
