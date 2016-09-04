@@ -1,5 +1,5 @@
-Securetypes overview
-====================
+Securetypes
+===========
 
 Securetypes' `securedict` is an implementation of `dict` that protects against
 algorithmic complexity attacks.  With a normal `dict`, if an adversary can
