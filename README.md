@@ -147,19 +147,3 @@ dec = json.decoder.JSONDecoder(object_pairs_hook=securedict)
 print dec.decode('{"b": ["bee", {}]}')
 # prints securedict({'b': ['bee', securedict({})]})
 ```
-
-
-
-Bugs
-====
-
-https://github.com/ludios/Securetypes/issues
-
-
-
-Contributing
-============
-
-Patches and pull requests are welcome.
-
-This coding standard applies: http://ludios.org/coding-standard/
