@@ -22,7 +22,9 @@ Better string-hash collisions can be found by analyzing Python's hash function.
 To protect against algorithmic complexity attacks, internally `securedict`
 stores a key wrapper for each key:
 
-`("_securedictmarker", sha1(key + secret), key)`
+```python
+("_securedictmarker", sha1(key + secret), key)
+```
 
 `sha1` protects against collisions, and `secret` prevents adversaries from
 controlling the `hash()` of the key wrapper.  (Without `secret`, you could just
@@ -30,7 +32,7 @@ pre-compute `hash(sha1(key))` for 2**32 keys.)
 
 `securedict` implements most of the `dict` API; you can use it much like a `dict`:
 
-```
+```python
 from securetypes import securedict
 
 d = securedict(x=3)
@@ -130,7 +132,7 @@ Install Twisted, then run `trial test_securetypes`
 could contain many `hash()`-colliding keys.  You can tell json/simplejson
 to create `securedict`s instead of `dict`s:
 
-```
+```python
 try:
 	import simplejson as json
 except ImportError:
