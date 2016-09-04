@@ -52,8 +52,7 @@ For more information about algorithmic complexity attacks, see:
 
 
 
-The fine print
-==============
+## The fine print
 
 *	A `securedict` supports only these types for keys: `str`, `unicode`,
 	`int`, `long`, `float`, `bool`, and `NoneType`.  Future versions will
@@ -93,23 +92,20 @@ Again: *never* `dict()` a `securedict`.
 
 
 
-Additional security considerations
-==================================
+## Additional security considerations
 
 Don't use `nan`s as dictionary keys.  `securedict` can't help you here.
 All `nan`s have the same `hash()` and are not equal to any object.
 
 
 
-Requirements
-============
+## Requirements
 
 CPython 2.4+ or pypy (tested 1.4 and 1.5)
 
 
 
-Installation
-============
+## Installation
 
 `python setup.py install`
 
@@ -122,15 +118,13 @@ and you can install it with pip:
 
 
 
-Running the tests
-=================
+## Running the tests
 
 Install Twisted, then run `trial test_securetypes`
 
 
 
-Using securedict with json/simplejson
-=====================================
+## Using securedict with json/simplejson
 
 `securedict` is very useful when decoding JSON objects, because the objects
 could contain many `hash()`-colliding keys.  You can tell json/simplejson
